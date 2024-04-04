@@ -405,9 +405,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ef40580c4c36d449cd4a9f38c40809, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quadWidth: 25
-  rows: 8
-  columns: 6
+  quadWidth: 1
+  rows: 20
+  columns: 20
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -20,15 +20,64 @@ public class MeshGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
 		meshFilter = GetComponent<MeshFilter>();
 
         mesh = new Mesh();
 
-		CreateQuad();
+		CreateQuad2();
 		UpdateMesh();
 
 		meshFilter.mesh = mesh;
+
+		Camera.main.transform.position = new Vector3 (columns * quadWidth / 2, 10, rows * quadWidth / 5);
+		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
     }
+
+	void CreateQuad2()
+	{
+		vertices = new Vector3[(1 + rows) * ( 1 + columns)];
+		triangles = new int[6 * rows * columns];
+
+		int indexVertice = 0;
+		//int indexTriangle = 0;
+
+		//Create Vertices
+		for (int z = 0, i = 0; z <= columns; ++z)
+		{
+			for (int x = 0; x <= columns; ++x, ++i)
+				vertices[indexVertice++] = new Vector3 (x * quadWidth, Mathf.Sin(z) + Mathf.Cos (x), z * quadWidth);
+		}
+
+		//Create Triangles
+		int numberTriangles = 0;
+		int currentVertice = 0;
+
+		for (int x = 0; x < columns; x++)
+		{
+			for (int y = 0; y < rows; y++)
+			{
+				triangles[currentVertice] = numberTriangles + x;
+				triangles[currentVertice + 1] = numberTriangles + rows + 1 + x;
+				triangles[currentVertice + 2] = numberTriangles + 1 + x;
+				triangles[currentVertice + 3] = numberTriangles + 1 + x;
+				triangles[currentVertice + 4] = numberTriangles + rows + 1 + x;
+				triangles[currentVertice + 5] = numberTriangles + rows + + 2 + x;
+
+				numberTriangles++;
+				currentVertice += 6;
+			}
+		}
+	}
+
+	private void OnDrawGizmos()
+	{
+		if (vertices == null)
+			return;
+
+		for (int i = 0; i < vertices.Length; i++)
+			Gizmos.DrawSphere (vertices[i], 0.1f);
+	}
 
 	void CreateQuad()
 	{
@@ -61,7 +110,6 @@ public class MeshGenerator : MonoBehaviour
 				indexTriangle += 6;
 			}
 		}
-
 
 	}
 
