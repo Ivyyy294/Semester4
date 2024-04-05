@@ -8,8 +8,8 @@ public class MeshGenerator : MonoBehaviour
 	//Editor
 	[Header ("Quad Settings")]
 	[SerializeField] float quadWidth = 1f;
-	[SerializeField] int quadRows = 1;
-	[SerializeField] int quadColumns = 1;
+	[Range(1, 255)][SerializeField] int quadRows = 1;
+	[Range(1, 255)][SerializeField] int quadColumns = 1;
 
 	[Space]
 	[SerializeField] bool useComputeShader = false;
@@ -189,17 +189,6 @@ public class MeshGenerator : MonoBehaviour
 				triangles[currentVertice++] = vBase + 1;
 				triangles[currentVertice++] = vBase + columnOffset;
 				triangles[currentVertice++] = vBase + columnOffset + 1;
-
-				//int vBase = z + (x * (quadColumns + 1)); 
-				//int columnOffset = quadColumns + 1;
-
-				//triangles[currentVertice++]	= vBase;
-				//triangles[currentVertice++] = vBase + 1;
-				//triangles[currentVertice++] = vBase + columnOffset;
-
-				//triangles[currentVertice++] = vBase + 1;
-				//triangles[currentVertice++] = vBase + columnOffset + 1;
-				//triangles[currentVertice++] = vBase + columnOffset;
 			}
 		}
 	}
