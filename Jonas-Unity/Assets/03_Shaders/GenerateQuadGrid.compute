@@ -52,9 +52,9 @@ void WaveAnimation (uint3 id : SV_DispatchThreadID)
 
 	const float Deg2Rad = PI / 180.f;
 
-	float zOffset = sin (WavesDirection * Deg2Rad) * WaveSpeed * WaveAnimationTimer;
-	float xOffset = cos (WavesDirection * Deg2Rad) * WaveSpeed * WaveAnimationTimer;
+	float zSpeed = sin (WavesDirection * Deg2Rad) * WaveSpeed;
+	float xSpeed = cos (WavesDirection * Deg2Rad) * WaveSpeed;
 
-	float baseHeight = sin ((id.z + zOffset) * WavesFrequency) + cos ((id.x + xOffset) * WavesFrequency);
+	float baseHeight = sin (id.z * WavesFrequency + WaveAnimationTimer * zSpeed) + cos (id.x * WavesFrequency + WaveAnimationTimer * xSpeed);
 	Vertices[index].y = baseHeight * WaveHeight;
 }
