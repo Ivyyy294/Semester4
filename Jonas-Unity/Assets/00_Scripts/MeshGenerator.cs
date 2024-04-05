@@ -42,7 +42,8 @@ public class MeshGenerator : MonoBehaviour
 		else
 			CreateQuad();
 
-		UpdateMesh();
+		mesh.vertices = vertices;
+		mesh.triangles = triangles;
 
 		//Set Mesh to MeshFilter
 		meshFilter = GetComponent<MeshFilter>();
@@ -64,14 +65,6 @@ public class MeshGenerator : MonoBehaviour
 	//		Gizmos.DrawSphere(vertices[i], 0.1f);
 	//}
 
-	void UpdateMesh()
-	{
-		mesh.Clear();
-		mesh.vertices = vertices;
-		mesh.triangles = triangles;
-		mesh.RecalculateNormals();
-	}
-
     // Update is called once per frame
     void Update()
     {
@@ -80,7 +73,8 @@ public class MeshGenerator : MonoBehaviour
 		else
 			UpdateQuadWaveAnimation();
 
-		UpdateMesh();
+		mesh.vertices = vertices;
+		mesh.RecalculateNormals();
 	}
 
 	private void OnDestroy()
