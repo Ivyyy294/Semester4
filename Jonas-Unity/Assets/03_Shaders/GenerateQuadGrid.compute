@@ -3,6 +3,8 @@
 #pragma kernel CreateTriangles
 #pragma kernel WaveAnimation
 
+#define PI 3.14159265358979323846
+
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 
@@ -47,7 +49,7 @@ void WaveAnimation (uint3 id : SV_DispatchThreadID)
 {
 	int index = id.x + (id.z * (Columns + 1));
 
-	const float Deg2Rad = 3.14159265f / 180.f;
+	const float Deg2Rad = PI / 180.f;
 
 	float zSpeed = sin (WavesDirection * Deg2Rad);
 	float xSpeed = cos (WavesDirection * Deg2Rad);
