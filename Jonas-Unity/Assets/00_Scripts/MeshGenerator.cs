@@ -54,6 +54,7 @@ public class MeshGenerator : MonoBehaviour
 		//Focus camera at center vertice of Mesh
 		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
 	}
+
 	//private void OnDrawGizmos()
 	//{
 	//	if (vertices == null)
@@ -178,16 +179,27 @@ public class MeshGenerator : MonoBehaviour
 		{
 			for (int z = 0; z < quadColumns; z++)
 			{
-				int vBase = z + (x * (quadColumns + 1)); 
+				int vBase = z + (x * (quadColumns + 1));
 				int columnOffset = quadColumns + 1;
 
-				triangles[currentVertice++]	= vBase;
-				triangles[currentVertice++] = vBase + 1;
+				triangles[currentVertice++] = vBase;
 				triangles[currentVertice++] = vBase + columnOffset;
+				triangles[currentVertice++] = vBase + 1;
 
 				triangles[currentVertice++] = vBase + 1;
-				triangles[currentVertice++] = vBase + columnOffset + 1;
 				triangles[currentVertice++] = vBase + columnOffset;
+				triangles[currentVertice++] = vBase + columnOffset + 1;
+
+				//int vBase = z + (x * (quadColumns + 1)); 
+				//int columnOffset = quadColumns + 1;
+
+				//triangles[currentVertice++]	= vBase;
+				//triangles[currentVertice++] = vBase + 1;
+				//triangles[currentVertice++] = vBase + columnOffset;
+
+				//triangles[currentVertice++] = vBase + 1;
+				//triangles[currentVertice++] = vBase + columnOffset + 1;
+				//triangles[currentVertice++] = vBase + columnOffset;
 			}
 		}
 	}
