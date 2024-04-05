@@ -30,7 +30,7 @@ void CreateTriangles (uint3 id : SV_DispatchThreadID)
 {
 	int currentVertice = (id.x * Columns * 6) + (id.z * 6);
 
-	int vBase = id.x + (id.z * (Columns + 1));
+	int vBase = id.z + (id.x * (Columns + 1));
 	int columnOffset = Columns + 1;
 
 	Triangles[currentVertice++] = vBase;

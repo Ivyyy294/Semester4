@@ -58,17 +58,17 @@ public class MeshGenerator : MonoBehaviour
 		Camera.main.transform.LookAt (new Vector3 (quadColumns * quadWidth / 2f, 0f, quadRows * quadWidth / 2));
 	}
 
-	//private void OnDrawGizmos()
-	//{
-	//	if (vertices == null)
-	//		return;
+	private void OnDrawGizmos()
+	{
+		if (vertices == null)
+			return;
 
-	//	for (int i = 0; i < vertices.Length; i++)
-	//		Gizmos.DrawSphere(vertices[i], 0.1f);
-	//}
+		for (int i = 0; i < vertices.Length; i++)
+			Gizmos.DrawSphere(vertices[i], 0.1f);
+	}
 
-    // Update is called once per frame
-    void Update()
+	// Update is called once per frame
+	void Update()
     {
 		if (useComputeShader)
 			UpdateQuadWaveAnimationGPU();
@@ -158,7 +158,7 @@ public class MeshGenerator : MonoBehaviour
 		for (int z = 0, i = 0; z <= quadColumns; ++z)
 		{
 			for (int x = 0; x <= quadColumns; ++x, ++i)
-				vertices[i] = new Vector3 (x * quadWidth, 0, z * quadWidth);
+				vertices[i] = new Vector3 (z * quadWidth, 0, x * quadWidth);
 		}
 
 		CreateTriangles();
@@ -181,12 +181,12 @@ public class MeshGenerator : MonoBehaviour
 				int columnOffset = quadColumns + 1;
 
 				triangles[currentVertice++] = vBase;
-				triangles[currentVertice++] = vBase + columnOffset;
 				triangles[currentVertice++] = vBase + 1;
+				triangles[currentVertice++] = vBase + columnOffset;
 
 				triangles[currentVertice++] = vBase + 1;
-				triangles[currentVertice++] = vBase + columnOffset;
 				triangles[currentVertice++] = vBase + columnOffset + 1;
+				triangles[currentVertice++] = vBase + columnOffset;
 			}
 		}
 	}
