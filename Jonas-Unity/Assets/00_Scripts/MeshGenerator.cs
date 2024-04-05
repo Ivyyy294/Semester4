@@ -58,14 +58,14 @@ public class MeshGenerator : MonoBehaviour
 		Camera.main.transform.LookAt (new Vector3 (quadColumns * quadWidth / 2f, 0f, quadRows * quadWidth / 2));
 	}
 
-	private void OnDrawGizmos()
-	{
-		if (vertices == null)
-			return;
+	//private void OnDrawGizmos()
+	//{
+	//	if (vertices == null)
+	//		return;
 
-		for (int i = 0; i < vertices.Length; i++)
-			Gizmos.DrawSphere(vertices[i], 0.1f);
-	}
+	//	for (int i = 0; i < vertices.Length; i++)
+	//		Gizmos.DrawSphere(vertices[i], 0.1f);
+	//}
 
 	// Update is called once per frame
 	void Update()

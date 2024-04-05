@@ -421,9 +421,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   quadWidth: 10
-  quadRows: 3
-  quadColumns: 2
-  useComputeShader: 1
+  quadRows: 255
+  quadColumns: 255
+  useComputeShader: 0
   computeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
   quadWaveHeight: 1.65
   quadWaveSpeed: 3
