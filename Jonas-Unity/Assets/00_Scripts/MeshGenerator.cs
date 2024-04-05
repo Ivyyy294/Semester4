@@ -11,6 +11,10 @@ public class MeshGenerator : MonoBehaviour
 	[SerializeField] int quadRows = 1;
 	[SerializeField] int quadColumns = 1;
 
+	[Space]
+	[SerializeField] bool useComputeShader = false;
+	[SerializeField] ComputeShader computeShader;
+
 	//Mesh values
 	MeshFilter meshFilter;
 	Mesh mesh;
@@ -28,7 +32,8 @@ public class MeshGenerator : MonoBehaviour
     {
 		//Create Mesh
         mesh = new Mesh();
-		CreateQuad();
+		//CreateQuad();
+		CreateQuadGPU();
 		UpdateMesh();
 
 		//Set Mesh to MeshFilter
@@ -40,7 +45,31 @@ public class MeshGenerator : MonoBehaviour
 
 		//Focus camera at center vertice of Mesh
 		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
-    }
+	}
+
+	void CreateQuadGPU()
+	{
+		//We need 1 additional vertice per row and colums
+		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
+
+		//Each quad has 6 vertices
+		triangles = new int[6 * quadRows * quadColumns];
+
+		ComputeBuffer verticeBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
+		verticeBuffer.SetData (vertices);
+
+		computeShader.SetBuffer (0, "Vertices", verticeBuffer);
+		computeShader.SetFloat ("QuadSize", quadWidth);
+		computeShader.SetFloat ("Columns", quadColumns);
+		computeShader.SetFloat ("Rows", quadRows);
+
+		computeShader.Dispatch (0, quadColumns + 1, 1, quadRows + 1);
+
+		verticeBuffer.GetData (vertices);
+		verticeBuffer.Dispose();
+
+		CreateTriangles();
+	}
 
 	void CreateQuad()
 	{
@@ -61,6 +90,11 @@ public class MeshGenerator : MonoBehaviour
 				vertices[i] = new Vector3 (x * quadWidth, 0, z * quadWidth);
 		}
 
+		CreateTriangles();
+	}
+
+	void CreateTriangles()
+	{
 		//Create Triangles
 		//Tell renderer which vertices build a rectangle
 		//First rect is 0, 1, 6 in case we have a 5 column grid
@@ -69,19 +103,30 @@ public class MeshGenerator : MonoBehaviour
 		int numberTriangles = 0;
 		int currentVertice = 0;
 
-		for (int x = 0; x < quadColumns; x++)
+		for (int x = 0; x < quadRows; x++)
 		{
-			for (int y = 0; y < quadRows; y++)
+			for (int z = 0; z < quadColumns; z++)
 			{
-				triangles[currentVertice] = numberTriangles + x;
-				triangles[currentVertice + 1] = numberTriangles + quadRows + 1 + x;
-				triangles[currentVertice + 2] = numberTriangles + 1 + x;
-				triangles[currentVertice + 3] = numberTriangles + 1 + x;
-				triangles[currentVertice + 4] = numberTriangles + quadRows + 1 + x;
-				triangles[currentVertice + 5] = numberTriangles + quadRows + + 2 + x;
+				int vBase = z + (x * (quadColumns + 1)); 
+				int columnOffset = quadColumns + 1;
 
-				numberTriangles++;
-				currentVertice += 6;
+				triangles[currentVertice++]	= vBase;
+				triangles[currentVertice++] = vBase + 1;
+				triangles[currentVertice++] = vBase + columnOffset;
+
+				triangles[currentVertice++] = vBase + 1;
+				triangles[currentVertice++] = vBase + columnOffset + 1;
+				triangles[currentVertice++] = vBase + columnOffset;
+
+				//triangles[currentVertice] = numberTriangles + x;
+				//triangles[currentVertice + 1] = numberTriangles + quadRows * (y + 1) + x;
+				//triangles[currentVertice + 2] = numberTriangles + x + 1;
+
+				//triangles[currentVertice + 3] = numberTriangles + 1 + x;
+				//triangles[currentVertice + 4] = numberTriangles + quadRows + (y + 1) + x;
+				//triangles[currentVertice + 5] = numberTriangles + quadRows + x + 2;
+
+				//numberTriangles++;
 			}
 		}
 	}
@@ -106,7 +151,7 @@ public class MeshGenerator : MonoBehaviour
 			return;
 
 		for (int i = 0; i < vertices.Length; i++)
-			Gizmos.DrawSphere (vertices[i], 0.1f);
+			Gizmos.DrawSphere(vertices[i], 0.1f);
 	}
 
 	void UpdateMesh()
@@ -121,7 +166,7 @@ public class MeshGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateQuadWaveAnimation();
-		UpdateMesh();
-    }
+		//UpdateQuadWaveAnimation();
+		//UpdateMesh();
+	}
 }
