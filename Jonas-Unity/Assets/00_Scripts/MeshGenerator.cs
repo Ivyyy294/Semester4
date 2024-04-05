@@ -47,90 +47,6 @@ public class MeshGenerator : MonoBehaviour
 		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
 	}
 
-	void CreateQuadGPU()
-	{
-		//We need 1 additional vertice per row and colums
-		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
-
-		//Each quad has 6 vertices
-		triangles = new int[6 * quadRows * quadColumns];
-
-		ComputeBuffer verticeBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
-		verticeBuffer.SetData (vertices);
-
-		computeShader.SetBuffer (0, "Vertices", verticeBuffer);
-		computeShader.SetFloat ("QuadSize", quadWidth);
-		computeShader.SetFloat ("Columns", quadColumns);
-		computeShader.SetFloat ("Rows", quadRows);
-
-		computeShader.Dispatch (0, quadColumns + 1, 1, quadRows + 1);
-
-		verticeBuffer.GetData (vertices);
-		verticeBuffer.Dispose();
-
-		CreateTriangles();
-	}
-
-	void CreateQuad()
-	{
-		//We need 1 additional vertice per row and colums
-		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
-
-		//Each quad has 6 vertices
-		triangles = new int[6 * quadRows * quadColumns];
-
-		//Create Vertices
-		//Patern:
-		//0 1 2 3 4  5
-		//6 7 8 9 10 11
-		//...
-		for (int z = 0, i = 0; z <= quadColumns; ++z)
-		{
-			for (int x = 0; x <= quadColumns; ++x, ++i)
-				vertices[i] = new Vector3 (x * quadWidth, 0, z * quadWidth);
-		}
-
-		CreateTriangles();
-	}
-
-	void CreateTriangles()
-	{
-		//Create Triangles
-		//Tell renderer which vertices build a rectangle
-		//First rect is 0, 1, 6 in case we have a 5 column grid
-		//Second rect is 1, 6, 7
-
-		int numberTriangles = 0;
-		int currentVertice = 0;
-
-		for (int x = 0; x < quadRows; x++)
-		{
-			for (int z = 0; z < quadColumns; z++)
-			{
-				int vBase = z + (x * (quadColumns + 1)); 
-				int columnOffset = quadColumns + 1;
-
-				triangles[currentVertice++]	= vBase;
-				triangles[currentVertice++] = vBase + 1;
-				triangles[currentVertice++] = vBase + columnOffset;
-
-				triangles[currentVertice++] = vBase + 1;
-				triangles[currentVertice++] = vBase + columnOffset + 1;
-				triangles[currentVertice++] = vBase + columnOffset;
-
-				//triangles[currentVertice] = numberTriangles + x;
-				//triangles[currentVertice + 1] = numberTriangles + quadRows * (y + 1) + x;
-				//triangles[currentVertice + 2] = numberTriangles + x + 1;
-
-				//triangles[currentVertice + 3] = numberTriangles + 1 + x;
-				//triangles[currentVertice + 4] = numberTriangles + quadRows + (y + 1) + x;
-				//triangles[currentVertice + 5] = numberTriangles + quadRows + x + 2;
-
-				//numberTriangles++;
-			}
-		}
-	}
-
 	void UpdateQuadWaveAnimation()
 	{
 		waveAnimationTimer += Time.deltaTime;
@@ -168,5 +84,97 @@ public class MeshGenerator : MonoBehaviour
     {
 		UpdateQuadWaveAnimation();
 		UpdateMesh();
+	}
+
+	//GPU
+	void CreateQuadGPU()
+	{
+		//We need 1 additional vertice per row and colums
+		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
+
+
+		ComputeBuffer verticeBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
+		verticeBuffer.SetData (vertices);
+
+		computeShader.SetBuffer (0, "Vertices", verticeBuffer);
+		computeShader.SetFloat ("QuadSize", quadWidth);
+		computeShader.SetFloat ("Columns", quadColumns);
+		computeShader.SetFloat ("Rows", quadRows);
+
+		computeShader.Dispatch (0, quadColumns + 1, 1, quadRows + 1);
+
+		verticeBuffer.GetData (vertices);
+		verticeBuffer.Dispose();
+
+		CreateTrianglesGPU();
+	}
+
+	void CreateTrianglesGPU()
+	{
+		//Each quad has 6 vertices
+		triangles = new int[6 * quadRows * quadColumns];
+
+		ComputeBuffer triangleBuffer = new ComputeBuffer (triangles.Length, sizeof (int));
+		triangleBuffer.SetData (triangles);
+
+		computeShader.SetBuffer (1, "Triangles", triangleBuffer);
+		computeShader.SetFloat ("QuadSize", quadWidth);
+		computeShader.SetFloat ("Columns", quadColumns);
+		computeShader.SetFloat ("Rows", quadRows);
+
+		computeShader.Dispatch (1, quadRows, 1, quadColumns);
+
+		triangleBuffer.GetData (triangles);
+		triangleBuffer.Dispose();
+	}
+
+	//CPU
+	void CreateQuad()
+	{
+		//We need 1 additional vertice per row and colums
+		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
+
+		//Each quad has 6 vertices
+		triangles = new int[6 * quadRows * quadColumns];
+
+		//Create Vertices
+		//Patern:
+		//0 1 2 3 4  5
+		//6 7 8 9 10 11
+		//...
+		for (int z = 0, i = 0; z <= quadColumns; ++z)
+		{
+			for (int x = 0; x <= quadColumns; ++x, ++i)
+				vertices[i] = new Vector3 (x * quadWidth, 0, z * quadWidth);
+		}
+
+		CreateTriangles();
+	}
+
+	void CreateTriangles()
+	{
+		//Create Triangles
+		//Tell renderer which vertices build a rectangle
+		//First rect is 0, 1, 6 in case we have a 5 column grid
+		//Second rect is 1, 6, 7
+
+		int currentVertice = 0;
+
+		for (int x = 0; x < quadRows; x++)
+		{
+			for (int z = 0; z < quadColumns; z++)
+			{
+				int vBase = z + (x * (quadColumns + 1)); 
+				int columnOffset = quadColumns + 1;
+
+				triangles[currentVertice++]	= vBase;
+				triangles[currentVertice++] = vBase + 1;
+				triangles[currentVertice++] = vBase + columnOffset;
+
+				triangles[currentVertice++] = vBase + 1;
+				triangles[currentVertice++] = vBase + columnOffset + 1;
+				triangles[currentVertice++] = vBase + columnOffset;
+			}
+		}
 	}
 }

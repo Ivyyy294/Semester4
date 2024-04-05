@@ -1,11 +1,12 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CreateVertices
+#pragma kernel CreateTriangles
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 
 RWStructuredBuffer <float3> Vertices;
-//RWStructuredBuffer <int> Triangles;
+RWStructuredBuffer <int> Triangles;
 
 float QuadSize;
 int Columns;
@@ -19,4 +20,21 @@ void CreateVertices (uint3 id : SV_DispatchThreadID)
     // TODO: insert actual code here!
 
     //Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
+
+[numthreads (1, 1, 1)]
+void CreateTriangles (uint3 id : SV_DispatchThreadID)
+{
+	int currentVertice = (id.x * Columns * 6) + (id.z * 6);
+
+	int vBase = id.x + (id.z * (Columns + 1));
+	int columnOffset = Columns + 1;
+
+	Triangles[currentVertice++] = vBase;
+	Triangles[currentVertice++] = vBase + 1;
+	Triangles[currentVertice++] = vBase + columnOffset;
+
+	Triangles[currentVertice++] = vBase + 1;
+	Triangles[currentVertice++] = vBase + columnOffset + 1;
+	Triangles[currentVertice++] = vBase + columnOffset;
 }
