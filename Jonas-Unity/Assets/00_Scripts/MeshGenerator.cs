@@ -41,7 +41,7 @@ public class MeshGenerator : MonoBehaviour
 		meshFilter.mesh = mesh;
 
 		//Center camera in z and place it with 50% spacing behind the Mesh
-		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth * 1.5f, 10, quadRows * quadWidth / 2);
+		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, 10, quadRows * quadWidth / 2);
 
 		//Focus camera at center vertice of Mesh
 		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
@@ -145,14 +145,14 @@ public class MeshGenerator : MonoBehaviour
 		}
 	}
 
-	private void OnDrawGizmos()
-	{
-		if (vertices == null)
-			return;
+	//private void OnDrawGizmos()
+	//{
+	//	if (vertices == null)
+	//		return;
 
-		for (int i = 0; i < vertices.Length; i++)
-			Gizmos.DrawSphere(vertices[i], 0.1f);
-	}
+	//	for (int i = 0; i < vertices.Length; i++)
+	//		Gizmos.DrawSphere(vertices[i], 0.1f);
+	//}
 
 	void UpdateMesh()
 	{
@@ -166,7 +166,7 @@ public class MeshGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		//UpdateQuadWaveAnimation();
-		//UpdateMesh();
+		UpdateQuadWaveAnimation();
+		UpdateMesh();
 	}
 }
