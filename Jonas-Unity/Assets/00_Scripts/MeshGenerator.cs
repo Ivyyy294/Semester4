@@ -52,7 +52,7 @@ public class MeshGenerator : MonoBehaviour
 		meshFilter.mesh = mesh;
 
 		//Center camera in z and place it with 50% spacing behind the Mesh
-		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, 10, quadRows * quadWidth / 2);
+		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, 20, quadRows * quadWidth / 2);
 
 		//Focus camera at center vertice of Mesh
 		Camera.main.transform.LookAt (new Vector3 (quadColumns * quadWidth / 2f, 0f, quadRows * quadWidth / 2));
