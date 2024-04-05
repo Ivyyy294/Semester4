@@ -19,6 +19,7 @@ float WaveAnimationTimer;
 float WaveHeight;
 float WaveSpeed;
 float WavesDirection;
+float WavesFrequency;
 
 [numthreads(1, 1 ,1)]
 void CreateVertices (uint3 id : SV_DispatchThreadID)
@@ -54,6 +55,6 @@ void WaveAnimation (uint3 id : SV_DispatchThreadID)
 	float zOffset = sin (WavesDirection * Deg2Rad) * WaveSpeed * WaveAnimationTimer;
 	float xOffset = cos (WavesDirection * Deg2Rad) * WaveSpeed * WaveAnimationTimer;
 
-	float baseHeight = sin (id.z + zOffset) + cos (id.x + xOffset);
+	float baseHeight = sin ((id.z + zOffset) * WavesFrequency) + cos ((id.x + xOffset) * WavesFrequency);
 	Vertices[index].y = baseHeight * WaveHeight;
 }

@@ -25,6 +25,7 @@ public class MeshGenerator : MonoBehaviour
 	[Header ("Quad Wave Settings")]
 	[SerializeField] float quadWaveHeight = 1f;
 	[SerializeField] float quadWaveSpeed = 1f;
+	[SerializeField] float quadWavesFrequency = 1f;
 	[SerializeField] float quadWavesDirection = 0f;
 	float waveAnimationTimer = 0f;
 	ComputeBuffer verticeBuffer;
@@ -134,6 +135,7 @@ public class MeshGenerator : MonoBehaviour
 		computeShader.SetFloat ("WaveAnimationTimer", waveAnimationTimer);
 		computeShader.SetFloat ("WaveSpeed", quadWaveSpeed);
 		computeShader.SetFloat ("WavesDirection", quadWavesDirection);
+		computeShader.SetFloat ("WavesFrequency", quadWavesFrequency);
 		computeShader.Dispatch (2, quadColumns + 1, 1, quadRows + 1);
 
 		verticeBuffer.GetData (vertices);
