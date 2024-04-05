@@ -8,64 +8,94 @@ public class MeshGenerator : MonoBehaviour
 	//Editor
 	[Header ("Quad Settings")]
 	[SerializeField] float quadWidth = 1f;
-	[SerializeField] int rows = 1;
-	[SerializeField] int columns = 1;
+	[SerializeField] int quadRows = 1;
+	[SerializeField] int quadColumns = 1;
 
+	//Mesh values
+	MeshFilter meshFilter;
 	Mesh mesh;
 	Vector3[] vertices;
 	int[] triangles;
 
-	MeshFilter meshFilter;
+	//Wave animation
+	[Header ("Quad Wave Settings")]
+	[SerializeField] float quadWaveHeight = 1f;
+	float waveAnimationTimer = 0f;
+
 
     // Start is called before the first frame update
     void Start()
     {
-
-		meshFilter = GetComponent<MeshFilter>();
-
+		//Create Mesh
         mesh = new Mesh();
-
-		CreateQuad2();
+		CreateQuad();
 		UpdateMesh();
 
+		//Set Mesh to MeshFilter
+		meshFilter = GetComponent<MeshFilter>();
 		meshFilter.mesh = mesh;
 
-		Camera.main.transform.position = new Vector3 (columns * quadWidth / 2, 10, rows * quadWidth / 5);
+		//Center camera in z and place it with 50% spacing behind the Mesh
+		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth * 1.5f, 10, quadRows * quadWidth / 2);
+
+		//Focus camera at center vertice of Mesh
 		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
     }
 
-	void CreateQuad2()
+	void CreateQuad()
 	{
-		vertices = new Vector3[(1 + rows) * ( 1 + columns)];
-		triangles = new int[6 * rows * columns];
+		//We need 1 additional vertice per row and colums
+		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
 
-		int indexVertice = 0;
-		//int indexTriangle = 0;
+		//Each quad has 6 vertices
+		triangles = new int[6 * quadRows * quadColumns];
 
 		//Create Vertices
-		for (int z = 0, i = 0; z <= columns; ++z)
+		//Patern:
+		//0 1 2 3 4  5
+		//6 7 8 9 10 11
+		//...
+		for (int z = 0, i = 0; z <= quadColumns; ++z)
 		{
-			for (int x = 0; x <= columns; ++x, ++i)
-				vertices[indexVertice++] = new Vector3 (x * quadWidth, Mathf.Sin(z) + Mathf.Cos (x), z * quadWidth);
+			for (int x = 0; x <= quadColumns; ++x, ++i)
+				vertices[i] = new Vector3 (x * quadWidth, 0, z * quadWidth);
 		}
 
 		//Create Triangles
+		//Tell renderer which vertices build a rectangle
+		//First rect is 0, 1, 6 in case we have a 5 column grid
+		//Second rect is 1, 6, 7
+
 		int numberTriangles = 0;
 		int currentVertice = 0;
 
-		for (int x = 0; x < columns; x++)
+		for (int x = 0; x < quadColumns; x++)
 		{
-			for (int y = 0; y < rows; y++)
+			for (int y = 0; y < quadRows; y++)
 			{
 				triangles[currentVertice] = numberTriangles + x;
-				triangles[currentVertice + 1] = numberTriangles + rows + 1 + x;
+				triangles[currentVertice + 1] = numberTriangles + quadRows + 1 + x;
 				triangles[currentVertice + 2] = numberTriangles + 1 + x;
 				triangles[currentVertice + 3] = numberTriangles + 1 + x;
-				triangles[currentVertice + 4] = numberTriangles + rows + 1 + x;
-				triangles[currentVertice + 5] = numberTriangles + rows + + 2 + x;
+				triangles[currentVertice + 4] = numberTriangles + quadRows + 1 + x;
+				triangles[currentVertice + 5] = numberTriangles + quadRows + + 2 + x;
 
 				numberTriangles++;
 				currentVertice += 6;
+			}
+		}
+	}
+
+	void UpdateQuadWaveAnimation()
+	{
+		waveAnimationTimer += Time.deltaTime;
+
+		for (int z = 0, i = 0; z <= quadColumns; ++z)
+		{
+			for (int x = 0; x <= quadColumns; ++x, ++i)
+			{
+				float baseHeight = Mathf.Sin(z + waveAnimationTimer) + Mathf.Cos (x + waveAnimationTimer);
+				vertices[i].y = baseHeight * quadWaveHeight;
 			}
 		}
 	}
@@ -77,40 +107,6 @@ public class MeshGenerator : MonoBehaviour
 
 		for (int i = 0; i < vertices.Length; i++)
 			Gizmos.DrawSphere (vertices[i], 0.1f);
-	}
-
-	void CreateQuad()
-	{
-		vertices = new Vector3[4 * rows * columns];
-		triangles = new int[vertices.Length * 3];
-
-		int indexVertice = 0;
-		int indexTriangle = 0;
-
-		for (int iRow = 0; iRow < rows; iRow++)
-		{
-			for (int iColumn = 0; iColumn < columns; ++iColumn)
-			{
-				float xBase = quadWidth * iRow;
-				float yBase = quadWidth * iColumn;
-
-				vertices[indexVertice] = new Vector3 (xBase, 0, yBase);
-				vertices[indexVertice + 1] = new Vector3 (xBase, 0, yBase + quadWidth);
-				vertices[indexVertice + 2] = new Vector3 (xBase + quadWidth, 0, yBase);
-				vertices[indexVertice + 3] = new Vector3 (xBase + quadWidth, 0, yBase + quadWidth);
-
-				triangles[indexTriangle] = indexVertice;
-				triangles[indexTriangle + 1] = indexVertice + 1;
-				triangles[indexTriangle + 2] = indexVertice + 2;
-				triangles[indexTriangle + 3] = indexVertice + 1;
-				triangles[indexTriangle + 4] = indexVertice + 3;
-				triangles[indexTriangle + 5] = indexVertice + 2;
-
-				indexVertice += 4;
-				indexTriangle += 6;
-			}
-		}
-
 	}
 
 	void UpdateMesh()
@@ -125,6 +121,7 @@ public class MeshGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        UpdateQuadWaveAnimation();
+		UpdateMesh();
     }
 }
