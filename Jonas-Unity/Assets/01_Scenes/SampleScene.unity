@@ -420,12 +420,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ef40580c4c36d449cd4a9f38c40809, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quadWidth: 1
-  quadRows: 100
-  quadColumns: 100
-  useComputeShader: 0
+  quadWidth: 10
+  quadRows: 250
+  quadColumns: 250
+  useComputeShader: 1
   computeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
-  quadWaveHeight: 0.25
+  quadWaveHeight: 1.65
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

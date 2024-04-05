@@ -25,6 +25,7 @@ public class MeshGenerator : MonoBehaviour
 	[Header ("Quad Wave Settings")]
 	[SerializeField] float quadWaveHeight = 1f;
 	float waveAnimationTimer = 0f;
+	ComputeBuffer verticeBuffer;
 
 
     // Start is called before the first frame update
@@ -32,8 +33,15 @@ public class MeshGenerator : MonoBehaviour
     {
 		//Create Mesh
         mesh = new Mesh();
-		//CreateQuad();
-		CreateQuadGPU();
+
+		if (useComputeShader)
+		{
+			CreateQuadGPU();
+			InitQuadWaveAnimationGPU();
+		}
+		else
+			CreateQuad();
+
 		UpdateMesh();
 
 		//Set Mesh to MeshFilter
@@ -46,21 +54,6 @@ public class MeshGenerator : MonoBehaviour
 		//Focus camera at center vertice of Mesh
 		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
 	}
-
-	void UpdateQuadWaveAnimation()
-	{
-		waveAnimationTimer += Time.deltaTime;
-
-		for (int z = 0, i = 0; z <= quadColumns; ++z)
-		{
-			for (int x = 0; x <= quadColumns; ++x, ++i)
-			{
-				float baseHeight = Mathf.Sin(z + waveAnimationTimer) + Mathf.Cos (x + waveAnimationTimer);
-				vertices[i].y = baseHeight * quadWaveHeight;
-			}
-		}
-	}
-
 	//private void OnDrawGizmos()
 	//{
 	//	if (vertices == null)
@@ -75,15 +68,24 @@ public class MeshGenerator : MonoBehaviour
 		mesh.Clear();
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
-
 		mesh.RecalculateNormals();
 	}
 
     // Update is called once per frame
     void Update()
     {
-		UpdateQuadWaveAnimation();
+		if (useComputeShader)
+			UpdateQuadWaveAnimationGPU();
+		else
+			UpdateQuadWaveAnimation();
+
 		UpdateMesh();
+	}
+
+	private void OnDestroy()
+	{
+		if (verticeBuffer != null)
+			verticeBuffer.Dispose();
 	}
 
 	//GPU
@@ -92,19 +94,16 @@ public class MeshGenerator : MonoBehaviour
 		//We need 1 additional vertice per row and colums
 		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
 
-
-		ComputeBuffer verticeBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
+		verticeBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
 		verticeBuffer.SetData (vertices);
 
 		computeShader.SetBuffer (0, "Vertices", verticeBuffer);
 		computeShader.SetFloat ("QuadSize", quadWidth);
 		computeShader.SetFloat ("Columns", quadColumns);
-		computeShader.SetFloat ("Rows", quadRows);
 
 		computeShader.Dispatch (0, quadColumns + 1, 1, quadRows + 1);
 
 		verticeBuffer.GetData (vertices);
-		verticeBuffer.Dispose();
 
 		CreateTrianglesGPU();
 	}
@@ -118,14 +117,29 @@ public class MeshGenerator : MonoBehaviour
 		triangleBuffer.SetData (triangles);
 
 		computeShader.SetBuffer (1, "Triangles", triangleBuffer);
-		computeShader.SetFloat ("QuadSize", quadWidth);
 		computeShader.SetFloat ("Columns", quadColumns);
-		computeShader.SetFloat ("Rows", quadRows);
 
 		computeShader.Dispatch (1, quadRows, 1, quadColumns);
 
 		triangleBuffer.GetData (triangles);
 		triangleBuffer.Dispose();
+	}
+
+	void InitQuadWaveAnimationGPU()
+	{
+		computeShader.SetBuffer (2, "Vertices", verticeBuffer);
+		computeShader.SetFloat ("Columns", quadColumns);
+	}
+
+	void UpdateQuadWaveAnimationGPU()
+	{
+		computeShader.SetFloat ("WaveHeight", quadWaveHeight);
+		computeShader.SetFloat ("WaveAnimationTimer", waveAnimationTimer);
+		computeShader.Dispatch (2, quadColumns + 1, 1, quadRows + 1);
+
+		verticeBuffer.GetData (vertices);
+
+		waveAnimationTimer += Time.deltaTime;
 	}
 
 	//CPU
@@ -174,6 +188,20 @@ public class MeshGenerator : MonoBehaviour
 				triangles[currentVertice++] = vBase + 1;
 				triangles[currentVertice++] = vBase + columnOffset + 1;
 				triangles[currentVertice++] = vBase + columnOffset;
+			}
+		}
+	}
+
+	void UpdateQuadWaveAnimation()
+	{
+		waveAnimationTimer += Time.deltaTime;
+
+		for (int z = 0, i = 0; z <= quadColumns; ++z)
+		{
+			for (int x = 0; x <= quadColumns; ++x, ++i)
+			{
+				float baseHeight = Mathf.Sin(z + waveAnimationTimer) + Mathf.Cos (x + waveAnimationTimer);
+				vertices[i].y = baseHeight * quadWaveHeight;
 			}
 		}
 	}
