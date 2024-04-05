@@ -426,6 +426,8 @@ MonoBehaviour:
   useComputeShader: 1
   computeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
   quadWaveHeight: 1.65
+  quadWaveSpeed: 3
+  quadWavesDirection: 60
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -24,6 +24,8 @@ public class MeshGenerator : MonoBehaviour
 	//Wave animation
 	[Header ("Quad Wave Settings")]
 	[SerializeField] float quadWaveHeight = 1f;
+	[SerializeField] float quadWaveSpeed = 1f;
+	[SerializeField] float quadWavesDirection = 0f;
 	float waveAnimationTimer = 0f;
 	ComputeBuffer verticeBuffer;
 
@@ -53,7 +55,7 @@ public class MeshGenerator : MonoBehaviour
 		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, 10, quadRows * quadWidth / 2);
 
 		//Focus camera at center vertice of Mesh
-		Camera.main.transform.LookAt (vertices[vertices.Length / 2]);
+		Camera.main.transform.LookAt (new Vector3 (quadColumns * quadWidth / 2f, 0f, quadRows * quadWidth / 2));
 	}
 
 	//private void OnDrawGizmos()
@@ -130,6 +132,8 @@ public class MeshGenerator : MonoBehaviour
 	{
 		computeShader.SetFloat ("WaveHeight", quadWaveHeight);
 		computeShader.SetFloat ("WaveAnimationTimer", waveAnimationTimer);
+		computeShader.SetFloat ("WaveSpeed", quadWaveSpeed);
+		computeShader.SetFloat ("WavesDirection", quadWavesDirection);
 		computeShader.Dispatch (2, quadColumns + 1, 1, quadRows + 1);
 
 		verticeBuffer.GetData (vertices);
