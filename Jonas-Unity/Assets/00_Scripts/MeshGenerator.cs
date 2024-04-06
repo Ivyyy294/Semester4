@@ -28,14 +28,15 @@ public class MeshGenerator : MonoBehaviour
 		SinCos = 0,
 		Sin = 1,
 		SumSin = 2,
-		Experimental
+		//GerstnerWave = 3,
+		Experimental,
 	}
 
 	[Header ("Quad Wave Settings")]
 	[SerializeField] WaveAnimationFunc waveTyp;
 	[SerializeField] float quadWaveHeight = 1f;
 	[SerializeField] float quadWaveSpeed = 1f;
-	[SerializeField] float quadWavesFrequency = 1f;
+	[SerializeField] float quadWaveLength = 1f;
 	[SerializeField] float quadWavesDirection = 0f;
 	float waveAnimationTimer = 0f;
 	ComputeBuffer verticeBuffer;
@@ -143,7 +144,9 @@ public class MeshGenerator : MonoBehaviour
 		computeShader.SetFloat("WaveAnimationTimer", waveAnimationTimer);
 		computeShader.SetFloat("WaveSpeed", quadWaveSpeed);
 		computeShader.SetFloat("WavesDirection", quadWavesDirection);
-		computeShader.SetFloat("WavesFrequency", quadWavesFrequency);
+
+		float waveFrequency = 2f * Mathf.PI / quadWaveLength;
+		computeShader.SetFloat("WavesFrequency", waveFrequency);
 
 		int threadCountX = Mathf.CeilToInt((quadColumns + 1f) / 8f);
 		int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);

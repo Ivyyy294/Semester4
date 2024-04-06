@@ -51,6 +51,13 @@ void CreateTriangles (uint3 id : SV_DispatchThreadID)
 }
 
 //Wave
+
+float3 GetDirectionVec ()
+{
+	const float Deg2Rad = PI / 180.f;
+	return float3 (cos (WavesDirection * Deg2Rad), 0.f, sin (WavesDirection * Deg2Rad));
+}
+
 float WaveSinCos (float x, float z)
 {
 	const float Deg2Rad = PI / 180.f;
@@ -65,22 +72,16 @@ float WaveSinCos (float x, float z)
 
 float WaveSin (float x, float z)
 {
-	const float Deg2Rad = PI / 180.f;
-	
-	float zSpeed = sin (WavesDirection * Deg2Rad);
-	float xSpeed = cos (WavesDirection * Deg2Rad);
+	float3 direction = GetDirectionVec ();
 
-	float baseHeight = sin ((z * zSpeed + x * xSpeed) * WavesFrequency + WaveAnimationTimer * WaveSpeed);
+	float baseHeight = sin ((z * direction.z + x * direction.x) * WavesFrequency + WaveAnimationTimer * WaveSpeed);
 
 	return baseHeight * WaveHeight;
 }
 
 float WaveSumSin (float x, float z)
 {
-	const float Deg2Rad = PI / 180.f;
-
-	float zSpeed = sin (WavesDirection * Deg2Rad);
-	float xSpeed = cos (WavesDirection * Deg2Rad);
+	float3 direction = GetDirectionVec ();
 
 	float h = 0.f;
 
@@ -88,31 +89,53 @@ float WaveSumSin (float x, float z)
 	{
 		float w = WavesFrequency - (WavesFrequency * 0.25f * i);
 		float a = WaveHeight - (WaveHeight * 0.25f * i);
-		h += sin ((z * zSpeed + x * xSpeed) * w + WaveAnimationTimer * WaveSpeed) * a;
+		h += sin ((z * direction.z + x * direction.x) * w + WaveAnimationTimer * WaveSpeed) * a;
 	}
 
 	return h;
 }
 
+float3 WaveGerstner (float x, float y, float3 p)
+{
+	float a = WaveHeight;
+	float k = WavesFrequency;
+
+	x *= QuadSize;
+
+	float f = k * (p.x + WaveAnimationTimer * WaveSpeed);
+
+	p.x += a * cos (f);
+	p.y = a * sin (f);
+
+	return p;
+}
+
 float WaveExperimental (float x, float z)
 {
-	const float Deg2Rad = PI / 180.f;
-
-	float zSpeed = sin (WavesDirection * Deg2Rad);
-	float xSpeed = cos (WavesDirection * Deg2Rad);
+	float3 direction = GetDirectionVec ();
 
 	float h = 0.f;
+	float w = WavesFrequency;
+	float a = WaveHeight;
 
-	for (int i = 0; i < 4; ++i)
+	//sin
+	for (int i = 0; i < 64; ++i)
 	{
-		float w = WavesFrequency - (WavesFrequency * 0.25f * i);
-		float a = WaveHeight - (WaveHeight * 0.25f * i);
-		h += sin ((z * zSpeed + x * xSpeed) * w + WaveAnimationTimer * WaveSpeed) * a;
+		h += sin ((z * direction.z + x * direction.x) * w + WaveAnimationTimer * WaveSpeed) * a;
+		w *= 0.82;
+		a *= 0.82;
 	}
 
-	float w = WavesFrequency / 10;
-	float a = WaveHeight;
-	h += cos ((x * xSpeed) * w + WaveAnimationTimer * WaveSpeed) * a;
+	w = WavesFrequency / 4;
+	a = WaveHeight;
+	float speed = WaveSpeed * 0.5f;
+
+	for (int i = 0; i < 64; ++i)
+	{
+		h += cos ((x * direction.x) * w + WaveAnimationTimer * speed) * a;
+		w *= 0.82;
+		a *= 0.82;
+	}
 
 	return h;
 }
@@ -131,6 +154,12 @@ void WaveAnimation (uint3 id : SV_DispatchThreadID)
 		Vertices[index].y = WaveSin (id.x, id.z);
 	else if (WaveTyp == 2)
 		Vertices[index].y = WaveSumSin (id.x, id.z);
+	//else if (WaveTyp == 3)
+	//{
+	//	float3 p = WaveGerstner (id.x, id.z, Vertices[index]);
+	//	Vertices[index].x = p.x;
+	//	Vertices[index].y = p.y;
+	//}
 	else
 		Vertices[index].y = WaveExperimental (id.x, id.z);
 }

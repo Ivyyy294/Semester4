@@ -413,7 +413,7 @@ MonoBehaviour:
   waveTyp: 0
   quadWaveHeight: 1
   quadWaveSpeed: 3
-  quadWavesFrequency: 0.5
+  quadWaveLength: 20
   quadWavesDirection: 45
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
