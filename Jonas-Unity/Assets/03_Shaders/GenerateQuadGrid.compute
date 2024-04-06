@@ -10,6 +10,7 @@ RWStructuredBuffer <int> Triangles;
 
 float QuadSize;
 int Columns;
+int Rows;
 
 //Wave
 int WaveTyp;
@@ -19,16 +20,22 @@ float WaveSpeed;
 float WavesDirection;
 float WavesFrequency;
 
-[numthreads(1, 1 ,1)]
+[numthreads(8, 1 ,8)]
 void CreateVertices (uint3 id : SV_DispatchThreadID)
 {
+	if (id.x > Rows || id.z > Columns)
+		return;
+
 	int index = id.x + (id.z * (Columns + 1));
 	Vertices[index] = float3 (id.z * QuadSize, 0, id.x * QuadSize);
 }
 
-[numthreads (1, 1, 1)]
+[numthreads (8, 1, 8)]
 void CreateTriangles (uint3 id : SV_DispatchThreadID)
 {
+	if (id.x >= Rows || id.z >= Columns)
+		return;
+
 	int currentVertice = (id.x * Columns * 6) + (id.z * 6);
 
 	int vBase = id.z + (id.x * (Columns + 1));
@@ -110,9 +117,12 @@ float WaveExperimental (float x, float z)
 	return h;
 }
 
-[numthreads (1, 1, 1)]
+[numthreads (8, 1, 8)]
 void WaveAnimation (uint3 id : SV_DispatchThreadID)
 {
+	if (id.x > Rows || id.z > Columns)
+		return;
+
 	int index = id.x + (id.z * (Columns + 1));
 
 	if (WaveTyp == 0)

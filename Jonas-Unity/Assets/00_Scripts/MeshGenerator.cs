@@ -40,7 +40,6 @@ public class MeshGenerator : MonoBehaviour
 	float waveAnimationTimer = 0f;
 	ComputeBuffer verticeBuffer;
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -99,8 +98,12 @@ public class MeshGenerator : MonoBehaviour
 		computeShader.SetBuffer (0, "Vertices", verticeBuffer);
 		computeShader.SetFloat ("QuadSize", quadWidth);
 		computeShader.SetFloat ("Columns", quadColumns);
+		computeShader.SetFloat ("Rows", quadRows);
 
-		computeShader.Dispatch (0, quadColumns + 1, 1, quadRows + 1);
+		int threadCountX = Mathf.CeilToInt ((quadColumns + 1f) / 8f);
+		int threadCountZ = Mathf.CeilToInt ((quadRows + 1f) / 8f);
+
+		computeShader.Dispatch (0, threadCountX, 1, threadCountZ);
 
 		verticeBuffer.GetData (vertices);
 
@@ -118,7 +121,10 @@ public class MeshGenerator : MonoBehaviour
 		computeShader.SetBuffer (1, "Triangles", triangleBuffer);
 		computeShader.SetFloat ("Columns", quadColumns);
 
-		computeShader.Dispatch (1, quadRows, 1, quadColumns);
+		int threadCountX = Mathf.CeilToInt (quadColumns / 8f);
+		int threadCountZ = Mathf.CeilToInt (quadRows / 8f);
+
+		computeShader.Dispatch (1, threadCountX, 1, threadCountZ);
 
 		triangleBuffer.GetData (triangles);
 		triangleBuffer.Dispose();
@@ -132,15 +138,19 @@ public class MeshGenerator : MonoBehaviour
 
 	void UpdateQuadWaveAnimationGPU()
 	{
-		computeShader.SetInt ("WaveTyp", (int)waveTyp);
-		computeShader.SetFloat ("WaveHeight", quadWaveHeight);
-		computeShader.SetFloat ("WaveAnimationTimer", waveAnimationTimer);
-		computeShader.SetFloat ("WaveSpeed", quadWaveSpeed);
-		computeShader.SetFloat ("WavesDirection", quadWavesDirection);
-		computeShader.SetFloat ("WavesFrequency", quadWavesFrequency);
-		computeShader.Dispatch (2, quadColumns + 1, 1, quadRows + 1);
+		computeShader.SetInt("WaveTyp", (int)waveTyp);
+		computeShader.SetFloat("WaveHeight", quadWaveHeight);
+		computeShader.SetFloat("WaveAnimationTimer", waveAnimationTimer);
+		computeShader.SetFloat("WaveSpeed", quadWaveSpeed);
+		computeShader.SetFloat("WavesDirection", quadWavesDirection);
+		computeShader.SetFloat("WavesFrequency", quadWavesFrequency);
 
-		verticeBuffer.GetData (vertices);
+		int threadCountX = Mathf.CeilToInt((quadColumns + 1f) / 8f);
+		int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);
+
+		computeShader.Dispatch(2, threadCountX, 1, threadCountZ);
+
+		verticeBuffer.GetData(vertices);
 
 		waveAnimationTimer += Time.deltaTime;
 	}
