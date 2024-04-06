@@ -22,7 +22,17 @@ public class MeshGenerator : MonoBehaviour
 	int[] triangles;
 
 	//Wave animation
+	[System.Serializable]
+	enum WaveAnimationFunc
+	{
+		SinCos = 0,
+		Sin = 1,
+		SumSin = 2,
+		Experimental
+	}
+
 	[Header ("Quad Wave Settings")]
+	[SerializeField] WaveAnimationFunc waveTyp;
 	[SerializeField] float quadWaveHeight = 1f;
 	[SerializeField] float quadWaveSpeed = 1f;
 	[SerializeField] float quadWavesFrequency = 1f;
@@ -59,16 +69,6 @@ public class MeshGenerator : MonoBehaviour
 		Camera.main.transform.LookAt (new Vector3 (quadColumns * quadWidth / 2f, 0f, quadRows * quadWidth / 2));
 	}
 
-	//private void OnDrawGizmos()
-	//{
-	//	if (vertices == null)
-	//		return;
-
-	//	for (int i = 0; i < vertices.Length; i++)
-	//		Gizmos.DrawSphere(vertices[i], 0.1f);
-	//}
-
-	// Update is called once per frame
 	void Update()
     {
 		if (useComputeShader)
@@ -131,6 +131,7 @@ public class MeshGenerator : MonoBehaviour
 
 	void UpdateQuadWaveAnimationGPU()
 	{
+		computeShader.SetInt ("WaveTyp", (int)waveTyp);
 		computeShader.SetFloat ("WaveHeight", quadWaveHeight);
 		computeShader.SetFloat ("WaveAnimationTimer", waveAnimationTimer);
 		computeShader.SetFloat ("WaveSpeed", quadWaveSpeed);

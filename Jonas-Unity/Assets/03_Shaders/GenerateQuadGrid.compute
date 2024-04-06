@@ -15,6 +15,7 @@ float QuadSize;
 int Columns;
 
 //Wave
+int WaveTyp;
 float WaveAnimationTimer;
 float WaveHeight;
 float WaveSpeed;
@@ -45,16 +46,85 @@ void CreateTriangles (uint3 id : SV_DispatchThreadID)
 	Triangles[currentVertice++] = vBase + columnOffset;
 }
 
-[numthreads (1, 1, 1)]
-void WaveAnimation (uint3 id : SV_DispatchThreadID)
-{
-	int index = id.x + (id.z * (Columns + 1));
+//Wave
 
+float WaveSinCos (float x, float z)
+{
 	const float Deg2Rad = PI / 180.f;
 
 	float zSpeed = sin (WavesDirection * Deg2Rad) * WaveSpeed;
 	float xSpeed = cos (WavesDirection * Deg2Rad) * WaveSpeed;
 
-	float baseHeight = sin (id.z * WavesFrequency + WaveAnimationTimer * zSpeed) + cos (id.x * WavesFrequency + WaveAnimationTimer * xSpeed);
-	Vertices[index].y = baseHeight * WaveHeight;
+	float baseHeight = sin (z * WavesFrequency + WaveAnimationTimer * zSpeed) + cos (x * WavesFrequency + WaveAnimationTimer * xSpeed);
+
+	return baseHeight * WaveHeight;
+}
+
+float WaveSin (float x, float z)
+{
+	const float Deg2Rad = PI / 180.f;
+	
+	float zSpeed = sin (WavesDirection * Deg2Rad);
+	float xSpeed = cos (WavesDirection * Deg2Rad);
+
+	float baseHeight = sin ((z * zSpeed + x * xSpeed) * WavesFrequency + WaveAnimationTimer * WaveSpeed);
+
+	return baseHeight * WaveHeight;
+}
+
+float WaveSumSin (float x, float z)
+{
+	const float Deg2Rad = PI / 180.f;
+
+	float zSpeed = sin (WavesDirection * Deg2Rad);
+	float xSpeed = cos (WavesDirection * Deg2Rad);
+
+	float h = 0.f;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		float w = WavesFrequency - (WavesFrequency * 0.25f * i);
+		float a = WaveHeight - (WaveHeight * 0.25f * i);
+		h += sin ((z * zSpeed + x * xSpeed) * w + WaveAnimationTimer * WaveSpeed) * a;
+	}
+
+	return h;
+}
+
+float WaveExperimental (float x, float z)
+{
+	const float Deg2Rad = PI / 180.f;
+
+	float zSpeed = sin (WavesDirection * Deg2Rad);
+	float xSpeed = cos (WavesDirection * Deg2Rad);
+
+	float h = 0.f;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		float w = WavesFrequency - (WavesFrequency * 0.25f * i);
+		float a = WaveHeight - (WaveHeight * 0.25f * i);
+		h += sin ((z * zSpeed + x * xSpeed) * w + WaveAnimationTimer * WaveSpeed) * a;
+	}
+
+	float w = WavesFrequency / 10;
+	float a = WaveHeight;
+	h += cos ((x * xSpeed) * w + WaveAnimationTimer * WaveSpeed) * a;
+
+	return h;
+}
+
+[numthreads (1, 1, 1)]
+void WaveAnimation (uint3 id : SV_DispatchThreadID)
+{
+	int index = id.x + (id.z * (Columns + 1));
+
+	if (WaveTyp == 0)
+		Vertices[index].y = WaveSinCos (id.x, id.z);
+	else if (WaveTyp == 1)
+		Vertices[index].y = WaveSin (id.x, id.z);
+	else if (WaveTyp == 2)
+		Vertices[index].y = WaveSumSin (id.x, id.z);
+	else
+		Vertices[index].y = WaveExperimental (id.x, id.z);
 }
