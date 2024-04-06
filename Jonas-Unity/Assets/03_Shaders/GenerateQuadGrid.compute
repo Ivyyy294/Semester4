@@ -5,9 +5,6 @@
 
 #define PI 3.14159265358979323846
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-
 RWStructuredBuffer <float3> Vertices;
 RWStructuredBuffer <int> Triangles;
 
@@ -47,7 +44,6 @@ void CreateTriangles (uint3 id : SV_DispatchThreadID)
 }
 
 //Wave
-
 float WaveSinCos (float x, float z)
 {
 	const float Deg2Rad = PI / 180.f;

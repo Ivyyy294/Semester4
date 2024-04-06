@@ -44,9 +44,7 @@ public class MeshGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-		//Create Mesh
-        mesh = new Mesh();
-
+		//Generate Quad Grid
 		if (useComputeShader)
 		{
 			CreateQuadGPU();
@@ -55,6 +53,8 @@ public class MeshGenerator : MonoBehaviour
 		else
 			CreateQuad();
 
+		//Init Mesh
+        mesh = new Mesh();
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
 
@@ -76,6 +76,7 @@ public class MeshGenerator : MonoBehaviour
 		else
 			UpdateQuadWaveAnimation();
 
+		//Update Mesh
 		mesh.vertices = vertices;
 		mesh.RecalculateNormals();
 	}
