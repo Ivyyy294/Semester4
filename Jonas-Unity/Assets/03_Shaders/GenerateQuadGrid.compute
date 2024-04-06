@@ -58,6 +58,12 @@ float3 GetDirectionVec ()
 	return float3 (cos (WavesDirection * Deg2Rad), 0.f, sin (WavesDirection * Deg2Rad));
 }
 
+float3 GetDirectionVec2(float angle)
+{
+	const float Deg2Rad = PI / 180.f;
+	return float3(cos(angle * Deg2Rad), 0.f, sin(angle * Deg2Rad));
+}
+
 float WaveSinCos (float x, float z)
 {
 	const float Deg2Rad = PI / 180.f;
@@ -110,7 +116,7 @@ float3 WaveGerstner (float x, float y, float3 p)
 	return p;
 }
 
-float WaveExperimental (float x, float z)
+float WaveSumSinCos (float x, float z)
 {
 	float3 direction = GetDirectionVec ();
 
@@ -140,6 +146,27 @@ float WaveExperimental (float x, float z)
 	return h;
 }
 
+float WaveExperimental(float x, float z)
+{
+
+	float h = 0.f;
+	float w = WavesFrequency;
+	float a = WaveHeight;
+	
+	//sin
+	for (int i = 1; i <= 256; ++i)
+	{
+		float3 direction = GetDirectionVec2(WavesDirection * i * i * i);
+		
+		h += sin((z * direction.z + x * direction.x) * w + WaveAnimationTimer * WaveSpeed) * a;
+
+		w *= 0.82;
+		a *= 0.82;
+	}
+
+	return h;
+}
+
 [numthreads (8, 1, 8)]
 void WaveAnimation (uint3 id : SV_DispatchThreadID)
 {
@@ -154,12 +181,8 @@ void WaveAnimation (uint3 id : SV_DispatchThreadID)
 		Vertices[index].y = WaveSin (id.x, id.z);
 	else if (WaveTyp == 2)
 		Vertices[index].y = WaveSumSin (id.x, id.z);
-	//else if (WaveTyp == 3)
-	//{
-	//	float3 p = WaveGerstner (id.x, id.z, Vertices[index]);
-	//	Vertices[index].x = p.x;
-	//	Vertices[index].y = p.y;
-	//}
+	else if (WaveTyp == 3)
+		Vertices[index].y = WaveSumSinCos (id.x, id.z);
 	else
 		Vertices[index].y = WaveExperimental (id.x, id.z);
 }

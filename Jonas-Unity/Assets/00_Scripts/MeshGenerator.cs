@@ -28,7 +28,7 @@ public class MeshGenerator : MonoBehaviour
 		SinCos = 0,
 		Sin = 1,
 		SumSin = 2,
-		//GerstnerWave = 3,
+		SumSinCos = 3,
 		Experimental,
 	}
 
