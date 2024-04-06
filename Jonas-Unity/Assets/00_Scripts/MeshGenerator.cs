@@ -11,7 +11,7 @@ public class MeshGenerator : MonoBehaviour
 	[Range(1, 255)][SerializeField] int quadRows = 1;
 	[Range(1, 255)][SerializeField] int quadColumns = 1;
 
-	[Space]
+	[Header ("Shader Settings")]
 	[SerializeField] bool useComputeShader = false;
 	[SerializeField] ComputeShader computeShader;
 
