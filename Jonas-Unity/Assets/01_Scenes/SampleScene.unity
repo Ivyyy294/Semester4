@@ -405,7 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ef40580c4c36d449cd4a9f38c40809, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quadWidth: 10
+  quadWidth: 2
   quadRows: 255
   quadColumns: 255
   useComputeShader: 1

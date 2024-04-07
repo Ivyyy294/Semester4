@@ -182,8 +182,8 @@ float3 WaveGerstnerExperimental(float x, float z, float3 p)
         p.z += direction.z * (a * cos(f));
         p.y += a * sin(f);
         
-        w *= 0.75;
-        a *= 0.75;
+        w *= 0.82;
+        a *= 0.82;
     }
     
     return p;
