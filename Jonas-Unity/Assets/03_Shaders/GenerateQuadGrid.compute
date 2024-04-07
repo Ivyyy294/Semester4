@@ -6,6 +6,7 @@
 #define PI 3.14159265358979323846
 
 RWStructuredBuffer <float3> Vertices;
+RWStructuredBuffer <float3> VerticesBase;
 RWStructuredBuffer <int> Triangles;
 
 float QuadSize;
@@ -101,21 +102,6 @@ float WaveSumSin (float x, float z)
 	return h;
 }
 
-float3 WaveGerstner (float x, float y, float3 p)
-{
-	float a = WaveHeight;
-	float k = WavesFrequency;
-
-	x *= QuadSize;
-
-	float f = k * (p.x + WaveAnimationTimer * WaveSpeed);
-
-	p.x += a * cos (f);
-	p.y = a * sin (f);
-
-	return p;
-}
-
 float WaveSumSinCos (float x, float z)
 {
 	float3 direction = GetDirectionVec ();
@@ -136,7 +122,7 @@ float WaveSumSinCos (float x, float z)
 	a = WaveHeight;
 	float speed = WaveSpeed * 0.5f;
 
-	for (int i = 0; i < 64; ++i)
+	for (int j = 0; j < 64; ++j)
 	{
 		h += cos ((x * direction.x) * w + WaveAnimationTimer * speed) * a;
 		w *= 0.82;
@@ -167,6 +153,42 @@ float WaveExperimental(float x, float z)
 	return h;
 }
 
+float3 WaveGerstner(float x, float z, float3 p)
+{
+    float a = WaveHeight;
+    float k = WavesFrequency;
+    float3 direction = GetDirectionVec();
+
+    float f = k * ((x * direction.x + z * direction.z) + WaveAnimationTimer * WaveSpeed);
+
+    p.x += direction.x * (a * cos(f));
+    p.z += direction.z * (a * cos(f));
+    p.y = a * sin(f);
+    
+    return p;
+}
+
+float3 WaveGerstnerExperimental(float x, float z, float3 p)
+{
+    float a = WaveHeight;
+    float w = WavesFrequency;
+
+    for (int i = 1; i <= 256; ++i)
+    {
+        float3 direction = GetDirectionVec2(WavesDirection * i * i * i);
+        float f = w * ((x * direction.x + z * direction.z) + WaveAnimationTimer * WaveSpeed);
+
+        p.x += direction.x * (a * cos(f));
+        p.z += direction.z * (a * cos(f));
+        p.y += a * sin(f);
+        
+        w *= 0.75;
+        a *= 0.75;
+    }
+    
+    return p;
+}
+
 [numthreads (8, 1, 8)]
 void WaveAnimation (uint3 id : SV_DispatchThreadID)
 {
@@ -175,6 +197,10 @@ void WaveAnimation (uint3 id : SV_DispatchThreadID)
 
 	int index = id.x + (id.z * (Columns + 1));
 
+    //Reset Vertices for non Gerstner
+    if (WaveTyp < 5)
+        Vertices[index] = VerticesBase[index];
+    
 	if (WaveTyp == 0)
 		Vertices[index].y = WaveSinCos (id.x, id.z);
 	else if (WaveTyp == 1)
@@ -183,6 +209,10 @@ void WaveAnimation (uint3 id : SV_DispatchThreadID)
 		Vertices[index].y = WaveSumSin (id.x, id.z);
 	else if (WaveTyp == 3)
 		Vertices[index].y = WaveSumSinCos (id.x, id.z);
-	else
+    else if (WaveTyp == 4)
 		Vertices[index].y = WaveExperimental (id.x, id.z);
+    else if (WaveTyp == 5)
+        Vertices[index] = WaveGerstner(id.x, id.z, VerticesBase[index]);
+    else if (WaveTyp == 6)
+        Vertices[index] = WaveGerstnerExperimental(id.x, id.z, VerticesBase[index]);
 }

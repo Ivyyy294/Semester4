@@ -29,7 +29,9 @@ public class MeshGenerator : MonoBehaviour
 		Sin = 1,
 		SumSin = 2,
 		SumSinCos = 3,
-		Experimental,
+		Experimental = 4,
+		GerstnerWave = 5,
+		GerstnerWaveExperimental
 	}
 
 	[Header ("Quad Wave Settings")]
@@ -40,6 +42,7 @@ public class MeshGenerator : MonoBehaviour
 	[SerializeField] float quadWavesDirection = 0f;
 	float waveAnimationTimer = 0f;
 	ComputeBuffer verticeBuffer;
+	ComputeBuffer verticeBaseBuffer;
 
     // Start is called before the first frame update
     void Start()
@@ -134,6 +137,11 @@ public class MeshGenerator : MonoBehaviour
 	void InitQuadWaveAnimationGPU()
 	{
 		computeShader.SetBuffer (2, "Vertices", verticeBuffer);
+
+		verticeBaseBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
+		verticeBaseBuffer.SetData (vertices);
+		computeShader.SetBuffer (2, "VerticesBase", verticeBaseBuffer);
+
 		computeShader.SetFloat ("Columns", quadColumns);
 	}
 
@@ -152,8 +160,7 @@ public class MeshGenerator : MonoBehaviour
 		int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);
 
 		computeShader.Dispatch(2, threadCountX, 1, threadCountZ);
-
-		verticeBuffer.GetData(vertices);
+		verticeBuffer.GetData (vertices);
 
 		waveAnimationTimer += Time.deltaTime;
 	}
