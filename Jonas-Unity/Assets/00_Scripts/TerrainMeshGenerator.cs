@@ -7,8 +7,10 @@ public class TerrainMeshGenerator : MeshGenerator
 {
 	[Header ("Terrain settings")]
 	[SerializeField] float scale = 20.0f;
+	[Min (1f)]
 	[SerializeField] float perlinAmplitude = 6.0f;
-	[SerializeField] float perlinOctave = 3.0f;
+	[Min (1)]
+	[SerializeField] int perlinOctaves = 3;
 
 	//controlls increase in frequency octaves
 	[Min (1f)]
@@ -53,7 +55,7 @@ public class TerrainMeshGenerator : MeshGenerator
 		{
 			for (int x = 0; x <= quadRows; ++x, i++)
 			{
-				vertices[i].y = GetHeight (x, z, scale, perlinOctave, lacunarity, persistance) * perlinAmplitude;
+				vertices[i].y = GetHeight (x, z, scale, perlinOctaves, lacunarity, persistance) * perlinAmplitude;
 
 				if (i == 0)
 				{
