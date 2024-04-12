@@ -18,6 +18,11 @@ public class TerrainMeshGenerator : MeshGenerator
 	[Range (0f, 1f)]
 	[SerializeField] float persistance = 0.5f;
 
+	[SerializeField] Gradient terrainColorGradient;
+
+	float minTerrainHeight = 0f;
+	float maxTerrainHeight = 0f;
+
 	// Start is called before the first frame update
     void Start()
     {
@@ -38,8 +43,8 @@ public class TerrainMeshGenerator : MeshGenerator
 	private void Update()
 	{
 		AddHeightPerlin();
-		mesh.vertices = vertices;
-		mesh.RecalculateNormals();
+		AddColor();
+		UpdateMesh();
 	}
 
 	void AddHeightPerlin()
@@ -49,7 +54,28 @@ public class TerrainMeshGenerator : MeshGenerator
 			for (int x = 0; x <= quadRows; ++x, i++)
 			{
 				vertices[i].y = GetHeight (x, z, scale, perlinOctave, lacunarity, persistance) * perlinAmplitude;
+
+				if (i == 0)
+				{
+					minTerrainHeight = vertices[i].y;
+					maxTerrainHeight = vertices[i].y;
+				}
+				else if (vertices[i].y < minTerrainHeight)
+					minTerrainHeight = vertices[i].y;
+				else if (vertices[i].y > maxTerrainHeight)
+					maxTerrainHeight = vertices[i].y;
 			}
+		}
+	}
+
+	void AddColor ()
+	{
+		colors = new Color[vertices.Length];
+		
+		for (int z = 0, i = 0; z <= quadColumns; ++z)
+		{
+			for (int x = 0; x <= quadRows; ++x, i++)
+				colors[i] = terrainColorGradient.Evaluate (Mathf.InverseLerp (minTerrainHeight, maxTerrainHeight, vertices[i].y));
 		}
 	}
 

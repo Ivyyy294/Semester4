@@ -19,6 +19,7 @@ public class MeshGenerator : MonoBehaviour
 	protected Vector3[] vertices;
 	protected int[] triangles;
 	protected Vector2[] uv;
+	protected Color[] colors;
 
 	//Shader values
 	protected ComputeBuffer verticeBuffer;
@@ -39,6 +40,7 @@ public class MeshGenerator : MonoBehaviour
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
 		mesh.uv = uv;
+		mesh.colors = colors;
 		mesh.RecalculateNormals();
 	}
 
