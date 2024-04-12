@@ -3,24 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent (typeof(MeshFilter))]
-public class WaterMeshGenerator : MonoBehaviour
+public class WaterMeshGenerator : MeshGenerator
 {
-	//Editor
-	[Header ("Quad Settings")]
-	[SerializeField] float quadWidth = 1f;
-	[Range(1, 255)][SerializeField] int quadRows = 1;
-	[Range(1, 255)][SerializeField] int quadColumns = 1;
-
 	[Header ("Shader Settings")]
-	[SerializeField] bool useComputeShader = false;
-	[SerializeField] ComputeShader quadGridComputeShader;
 	[SerializeField] ComputeShader WaveComputeShader;
-
-	//Mesh values
-	MeshFilter meshFilter;
-	Mesh mesh;
-	Vector3[] vertices;
-	int[] triangles;
 
 	//Wave animation
 	[System.Serializable]
@@ -42,29 +28,16 @@ public class WaterMeshGenerator : MonoBehaviour
 	[SerializeField] float quadWaveLength = 1f;
 	[SerializeField] float quadWavesDirection = 0f;
 	float waveAnimationTimer = 0f;
-	ComputeBuffer verticeBuffer;
 	ComputeBuffer verticeBaseBuffer;
 
     // Start is called before the first frame update
     void Start()
     {
 		//Generate Quad Grid
-		if (useComputeShader)
-		{
-			CreateQuadGPU();
-			InitQuadWaveAnimationGPU();
-		}
-		else
-			CreateQuad();
+		CreateQuad();
+		InitQuadWaveAnimation();
 
-		//Init Mesh
-        mesh = new Mesh();
-		mesh.vertices = vertices;
-		mesh.triangles = triangles;
-
-		//Set Mesh to MeshFilter
-		meshFilter = GetComponent<MeshFilter>();
-		meshFilter.mesh = mesh;
+		InitMesh();
 
 		//Center camera in z and place it with 50% spacing behind the Mesh
 		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, 20, quadRows * quadWidth / 2);
@@ -75,67 +48,22 @@ public class WaterMeshGenerator : MonoBehaviour
 
 	void Update()
     {
-		if (useComputeShader)
-			UpdateQuadWaveAnimationGPU();
-		else
-			UpdateQuadWaveAnimation();
+		UpdateQuadWaveAnimation();
 
 		//Update Mesh
 		mesh.vertices = vertices;
 		mesh.RecalculateNormals();
 	}
 
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
-		if (verticeBuffer != null)
-			verticeBuffer.Dispose();
+		base.OnDestroy();
+
+		if (verticeBaseBuffer != null)
+			verticeBaseBuffer.Dispose();
 	}
 
-	//GPU
-	void CreateQuadGPU()
-	{
-		//We need 1 additional vertice per row and colums
-		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
-
-		verticeBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
-		verticeBuffer.SetData (vertices);
-
-		quadGridComputeShader.SetBuffer (0, "Vertices", verticeBuffer);
-		quadGridComputeShader.SetFloat ("QuadSize", quadWidth);
-		quadGridComputeShader.SetFloat ("Columns", quadColumns);
-		quadGridComputeShader.SetFloat ("Rows", quadRows);
-
-		int threadCountX = Mathf.CeilToInt ((quadColumns + 1f) / 8f);
-		int threadCountZ = Mathf.CeilToInt ((quadRows + 1f) / 8f);
-
-		quadGridComputeShader.Dispatch (0, threadCountX, 1, threadCountZ);
-
-		verticeBuffer.GetData (vertices);
-
-		CreateTrianglesGPU();
-	}
-
-	void CreateTrianglesGPU()
-	{
-		//Each quad has 6 vertices
-		triangles = new int[6 * quadRows * quadColumns];
-
-		ComputeBuffer triangleBuffer = new ComputeBuffer (triangles.Length, sizeof (int));
-		triangleBuffer.SetData (triangles);
-
-		quadGridComputeShader.SetBuffer (1, "Triangles", triangleBuffer);
-		quadGridComputeShader.SetFloat ("Columns", quadColumns);
-
-		int threadCountX = Mathf.CeilToInt (quadColumns / 8f);
-		int threadCountZ = Mathf.CeilToInt (quadRows / 8f);
-
-		quadGridComputeShader.Dispatch (1, threadCountX, 1, threadCountZ);
-
-		triangleBuffer.GetData (triangles);
-		triangleBuffer.Dispose();
-	}
-
-	void InitQuadWaveAnimationGPU()
+	void InitQuadWaveAnimation()
 	{
 		WaveComputeShader.SetBuffer (0, "Vertices", verticeBuffer);
 
@@ -147,7 +75,7 @@ public class WaterMeshGenerator : MonoBehaviour
 		WaveComputeShader.SetFloat ("Rows", quadRows);
 	}
 
-	void UpdateQuadWaveAnimationGPU()
+	void UpdateQuadWaveAnimation()
 	{
 		WaveComputeShader.SetInt("WaveTyp", (int)waveTyp);
 		WaveComputeShader.SetFloat("WaveHeight", quadWaveHeight);
@@ -165,69 +93,5 @@ public class WaterMeshGenerator : MonoBehaviour
 		verticeBuffer.GetData (vertices);
 
 		waveAnimationTimer += Time.deltaTime;
-	}
-
-	//CPU
-	void CreateQuad()
-	{
-		//We need 1 additional vertice per row and colums
-		vertices = new Vector3[(1 + quadRows) * ( 1 + quadColumns)];
-
-		//Each quad has 6 vertices
-		triangles = new int[6 * quadRows * quadColumns];
-
-		//Create Vertices
-		//Patern:
-		//0 1 2 3 4  5
-		//6 7 8 9 10 11
-		//...
-		for (int z = 0, i = 0; z <= quadColumns; ++z)
-		{
-			for (int x = 0; x <= quadColumns; ++x, ++i)
-				vertices[i] = new Vector3 (z * quadWidth, 0, x * quadWidth);
-		}
-
-		CreateTriangles();
-	}
-
-	void CreateTriangles()
-	{
-		//Create Triangles
-		//Tell renderer which vertices build a rectangle
-		//First rect is 0, 1, 6 in case we have a 5 column grid
-		//Second rect is 1, 6, 7
-
-		int currentVertice = 0;
-
-		for (int x = 0; x < quadRows; x++)
-		{
-			for (int z = 0; z < quadColumns; z++)
-			{
-				int vBase = z + (x * (quadColumns + 1));
-				int columnOffset = quadColumns + 1;
-
-				triangles[currentVertice++] = vBase;
-				triangles[currentVertice++] = vBase + 1;
-				triangles[currentVertice++] = vBase + columnOffset;
-
-				triangles[currentVertice++] = vBase + 1;
-				triangles[currentVertice++] = vBase + columnOffset + 1;
-				triangles[currentVertice++] = vBase + columnOffset;
-			}
-		}
-	}
-
-	void UpdateQuadWaveAnimation()
-	{
-		waveAnimationTimer += Time.deltaTime;
-
-		for (int z = 0, i = 0; z <= quadColumns; ++z)
-		{
-			for (int x = 0; x <= quadColumns; ++x, ++i)
-			{
-				float baseHeight = Mathf.Sin(z + waveAnimationTimer) + Mathf.Cos (x + waveAnimationTimer);
-				vertices[i].y = baseHeight * quadWaveHeight;
-			}
-		}
 	}
 }
