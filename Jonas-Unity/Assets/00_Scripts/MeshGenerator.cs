@@ -18,6 +18,7 @@ public class MeshGenerator : MonoBehaviour
 	protected Mesh mesh;
 	protected Vector3[] vertices;
 	protected int[] triangles;
+	protected Vector2[] uv;
 
 	//Shader values
 	protected ComputeBuffer verticeBuffer;
@@ -26,12 +27,18 @@ public class MeshGenerator : MonoBehaviour
 	{
 		//Init Mesh
         mesh = new Mesh();
-		mesh.vertices = vertices;
-		mesh.triangles = triangles;
+		UpdateMesh();
 
 		//Set Mesh to MeshFilter
 		meshFilter = GetComponent<MeshFilter>();
 		meshFilter.mesh = mesh;
+	}
+
+	protected void UpdateMesh()
+	{
+		mesh.vertices = vertices;
+		mesh.triangles = triangles;
+		mesh.uv = uv;
 		mesh.RecalculateNormals();
 	}
 
@@ -56,6 +63,7 @@ public class MeshGenerator : MonoBehaviour
 		verticeBuffer.GetData (vertices);
 
 		CreateTriangles();
+		CreateUV();
 	}
 
 	protected void CreateTriangles()
@@ -76,6 +84,23 @@ public class MeshGenerator : MonoBehaviour
 
 		triangleBuffer.GetData (triangles);
 		triangleBuffer.Dispose();
+	}
+
+	protected void CreateUV()
+	{
+		uv = new Vector2[vertices.Length];
+		ComputeBuffer uvBuffer = new ComputeBuffer (uv.Length, sizeof (float) * 2);
+		uvBuffer.SetData (uv);
+
+		quadGridComputeShader.SetBuffer (2, "UV", uvBuffer);
+
+		int threadCountX = Mathf.CeilToInt ((quadColumns + 1f) / 8f);
+		int threadCountZ = Mathf.CeilToInt ((quadRows + 1f) / 8f);
+
+		quadGridComputeShader.Dispatch (2, threadCountX, 1, threadCountZ);
+
+		uvBuffer.GetData (uv);
+		uvBuffer.Dispose();
 	}
 
 	protected virtual void OnDestroy()

@@ -1,9 +1,11 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CreateVertices
 #pragma kernel CreateTriangles
+#pragma kernel CreateUV
 
 RWStructuredBuffer <float3> Vertices;
 RWStructuredBuffer <int> Triangles;
+RWStructuredBuffer<float2> UV;
 
 float QuadSize;
 int Columns;
@@ -40,4 +42,14 @@ void CreateTriangles (uint3 id : SV_DispatchThreadID)
 	Triangles[currentVertice++] = vBase + 1;
 	Triangles[currentVertice++] = vBase + columnOffset + 1;
 	Triangles[currentVertice++] = vBase + columnOffset;
+}
+
+[numthreads(8, 1, 8)]
+void CreateUV(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x > Rows || id.z > Columns)
+        return;
+
+    int index = id.x + (id.z * (Columns + 1));
+    UV[index] = float2(id.x * 1.f / Rows, id.z * 1.f / Columns);
 }

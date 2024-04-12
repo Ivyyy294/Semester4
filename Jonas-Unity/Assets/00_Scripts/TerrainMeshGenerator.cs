@@ -35,6 +35,13 @@ public class TerrainMeshGenerator : MeshGenerator
 		Camera.main.transform.LookAt (new Vector3 (quadColumns * quadWidth / 2f, 0f, quadRows * quadWidth / 2));
     }
 
+	private void Update()
+	{
+		AddHeightPerlin();
+		mesh.vertices = vertices;
+		mesh.RecalculateNormals();
+	}
+
 	void AddHeightPerlin()
 	{
 		for (int z = 0, i = 0; z <= quadColumns; ++z)
