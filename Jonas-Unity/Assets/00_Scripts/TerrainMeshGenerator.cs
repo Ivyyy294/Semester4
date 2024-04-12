@@ -6,8 +6,10 @@ using UnityEngine;
 public class TerrainMeshGenerator : MeshGenerator
 {
 	[Header ("Terrain settings")]
-	[SerializeField] float scale = 1.0f;
-	[SerializeField] float perlinAmplitude = 1.0f;
+	[SerializeField] float scale = 20.0f;
+	[SerializeField] float perlinAmplitude = 6.0f;
+	[SerializeField] float perlinOctave = 3.0f;
+	[SerializeField] float lacunarity = 2.0f;
 	// Start is called before the first frame update
     void Start()
     {
@@ -31,19 +33,25 @@ public class TerrainMeshGenerator : MeshGenerator
 		{
 			for (int x = 0; x <= quadRows; ++x, i++)
 			{
-				vertices[i].y = GetHeight (x, z, scale) * perlinAmplitude;
+				vertices[i].y = GetHeight (x, z, scale, perlinOctave, lacunarity) * perlinAmplitude;
 			}
 		}
 	}
 
-	float GetHeight (float x, float z, float scale)
+	float GetHeight (float x, float z, float scale, float octaves, float lacunarity)
 	{
 		if (scale <= 0)
 			scale = 0.0001f;
 
 		float height = 0f;
+		float frequency = 1f;
 
-		height = Mathf.PerlinNoise (x / scale, z / scale);
+		for (int i = 0; i < octaves; ++i)
+		{
+			float perlinValue = Mathf.PerlinNoise ((x / scale) * frequency, (z / scale) * frequency);
+			height += perlinValue;
+			frequency *= lacunarity;
+		}
 
 		return height;
 	}

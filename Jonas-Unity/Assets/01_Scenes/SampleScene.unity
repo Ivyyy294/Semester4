@@ -212,11 +212,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   quadWidth: 1
-  quadRows: 255
-  quadColumns: 255
+  quadRows: 50
+  quadColumns: 50
   quadGridComputeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
   scale: 20
-  perlinAmplitude: 10
+  perlinAmplitude: 6
+  perlinOctave: 3
+  lacunarity: 2
 --- !u!33 &647878261
 MeshFilter:
   m_ObjectHideFlags: 0
