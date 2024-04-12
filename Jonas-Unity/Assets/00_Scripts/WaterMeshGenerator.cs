@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent (typeof(MeshFilter))]
-public class MeshGenerator : MonoBehaviour
+public class WaterMeshGenerator : MonoBehaviour
 {
 	//Editor
 	[Header ("Quad Settings")]
@@ -13,7 +13,8 @@ public class MeshGenerator : MonoBehaviour
 
 	[Header ("Shader Settings")]
 	[SerializeField] bool useComputeShader = false;
-	[SerializeField] ComputeShader computeShader;
+	[SerializeField] ComputeShader quadGridComputeShader;
+	[SerializeField] ComputeShader WaveComputeShader;
 
 	//Mesh values
 	MeshFilter meshFilter;
@@ -99,15 +100,15 @@ public class MeshGenerator : MonoBehaviour
 		verticeBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
 		verticeBuffer.SetData (vertices);
 
-		computeShader.SetBuffer (0, "Vertices", verticeBuffer);
-		computeShader.SetFloat ("QuadSize", quadWidth);
-		computeShader.SetFloat ("Columns", quadColumns);
-		computeShader.SetFloat ("Rows", quadRows);
+		quadGridComputeShader.SetBuffer (0, "Vertices", verticeBuffer);
+		quadGridComputeShader.SetFloat ("QuadSize", quadWidth);
+		quadGridComputeShader.SetFloat ("Columns", quadColumns);
+		quadGridComputeShader.SetFloat ("Rows", quadRows);
 
 		int threadCountX = Mathf.CeilToInt ((quadColumns + 1f) / 8f);
 		int threadCountZ = Mathf.CeilToInt ((quadRows + 1f) / 8f);
 
-		computeShader.Dispatch (0, threadCountX, 1, threadCountZ);
+		quadGridComputeShader.Dispatch (0, threadCountX, 1, threadCountZ);
 
 		verticeBuffer.GetData (vertices);
 
@@ -122,13 +123,13 @@ public class MeshGenerator : MonoBehaviour
 		ComputeBuffer triangleBuffer = new ComputeBuffer (triangles.Length, sizeof (int));
 		triangleBuffer.SetData (triangles);
 
-		computeShader.SetBuffer (1, "Triangles", triangleBuffer);
-		computeShader.SetFloat ("Columns", quadColumns);
+		quadGridComputeShader.SetBuffer (1, "Triangles", triangleBuffer);
+		quadGridComputeShader.SetFloat ("Columns", quadColumns);
 
 		int threadCountX = Mathf.CeilToInt (quadColumns / 8f);
 		int threadCountZ = Mathf.CeilToInt (quadRows / 8f);
 
-		computeShader.Dispatch (1, threadCountX, 1, threadCountZ);
+		quadGridComputeShader.Dispatch (1, threadCountX, 1, threadCountZ);
 
 		triangleBuffer.GetData (triangles);
 		triangleBuffer.Dispose();
@@ -136,30 +137,31 @@ public class MeshGenerator : MonoBehaviour
 
 	void InitQuadWaveAnimationGPU()
 	{
-		computeShader.SetBuffer (2, "Vertices", verticeBuffer);
+		WaveComputeShader.SetBuffer (0, "Vertices", verticeBuffer);
 
 		verticeBaseBuffer = new ComputeBuffer (vertices.Length, (sizeof (float) * 3));
 		verticeBaseBuffer.SetData (vertices);
-		computeShader.SetBuffer (2, "VerticesBase", verticeBaseBuffer);
+		WaveComputeShader.SetBuffer (0, "VerticesBase", verticeBaseBuffer);
 
-		computeShader.SetFloat ("Columns", quadColumns);
+		WaveComputeShader.SetFloat ("Columns", quadColumns);
+		WaveComputeShader.SetFloat ("Rows", quadRows);
 	}
 
 	void UpdateQuadWaveAnimationGPU()
 	{
-		computeShader.SetInt("WaveTyp", (int)waveTyp);
-		computeShader.SetFloat("WaveHeight", quadWaveHeight);
-		computeShader.SetFloat("WaveAnimationTimer", waveAnimationTimer);
-		computeShader.SetFloat("WaveSpeed", quadWaveSpeed);
-		computeShader.SetFloat("WavesDirection", quadWavesDirection);
+		WaveComputeShader.SetInt("WaveTyp", (int)waveTyp);
+		WaveComputeShader.SetFloat("WaveHeight", quadWaveHeight);
+		WaveComputeShader.SetFloat("WaveAnimationTimer", waveAnimationTimer);
+		WaveComputeShader.SetFloat("WaveSpeed", quadWaveSpeed);
+		WaveComputeShader.SetFloat("WavesDirection", quadWavesDirection);
 
 		float waveFrequency = 2f * Mathf.PI / quadWaveLength;
-		computeShader.SetFloat("WavesFrequency", waveFrequency);
+		WaveComputeShader.SetFloat("WavesFrequency", waveFrequency);
 
 		int threadCountX = Mathf.CeilToInt((quadColumns + 1f) / 8f);
 		int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);
 
-		computeShader.Dispatch(2, threadCountX, 1, threadCountZ);
+		WaveComputeShader.Dispatch(0, threadCountX, 1, threadCountZ);
 		verticeBuffer.GetData (vertices);
 
 		waveAnimationTimer += Time.deltaTime;

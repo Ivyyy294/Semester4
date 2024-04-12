@@ -1,0 +1,182 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel WaveAnimation
+
+#define PI 3.14159265358979323846
+
+//Base info
+int Columns;
+int Rows;
+RWStructuredBuffer<float3> Vertices;
+RWStructuredBuffer<float3> VerticesBase;
+
+//Wave info
+int WaveTyp;
+float WaveAnimationTimer;
+float WaveHeight;
+float WaveSpeed;
+float WavesDirection;
+float WavesFrequency;
+
+float3 GetDirectionVec()
+{
+    const float Deg2Rad = PI / 180.f;
+    return float3(cos(WavesDirection * Deg2Rad), 0.f, sin(WavesDirection * Deg2Rad));
+}
+
+float3 GetDirectionVec2(float angle)
+{
+    const float Deg2Rad = PI / 180.f;
+    return float3(cos(angle * Deg2Rad), 0.f, sin(angle * Deg2Rad));
+}
+
+float WaveSinCos(float x, float z)
+{
+    const float Deg2Rad = PI / 180.f;
+
+    float zSpeed = sin(WavesDirection * Deg2Rad) * WaveSpeed;
+    float xSpeed = cos(WavesDirection * Deg2Rad) * WaveSpeed;
+
+    float baseHeight = sin(z * WavesFrequency + WaveAnimationTimer * zSpeed) + cos(x * WavesFrequency + WaveAnimationTimer * xSpeed);
+
+    return baseHeight * WaveHeight;
+}
+
+float WaveSin(float x, float z)
+{
+    float3 direction = GetDirectionVec();
+
+    float baseHeight = sin((z * direction.z + x * direction.x) * WavesFrequency + WaveAnimationTimer * WaveSpeed);
+
+    return baseHeight * WaveHeight;
+}
+
+float WaveSumSin(float x, float z)
+{
+    float3 direction = GetDirectionVec();
+
+    float h = 0.f;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        float w = WavesFrequency - (WavesFrequency * 0.25f * i);
+        float a = WaveHeight - (WaveHeight * 0.25f * i);
+        h += sin((z * direction.z + x * direction.x) * w + WaveAnimationTimer * WaveSpeed) * a;
+    }
+
+    return h;
+}
+
+float WaveSumSinCos(float x, float z)
+{
+    float3 direction = GetDirectionVec();
+
+    float h = 0.f;
+    float w = WavesFrequency;
+    float a = WaveHeight;
+
+	//sin
+    for (int i = 0; i < 64; ++i)
+    {
+        h += sin((z * direction.z + x * direction.x) * w + WaveAnimationTimer * WaveSpeed) * a;
+        w *= 0.82;
+        a *= 0.82;
+    }
+
+    w = WavesFrequency / 4;
+    a = WaveHeight;
+    float speed = WaveSpeed * 0.5f;
+
+    for (int j = 0; j < 64; ++j)
+    {
+        h += cos((x * direction.x) * w + WaveAnimationTimer * speed) * a;
+        w *= 0.82;
+        a *= 0.82;
+    }
+
+    return h;
+}
+
+float WaveExperimental(float x, float z)
+{
+
+    float h = 0.f;
+    float w = WavesFrequency;
+    float a = WaveHeight;
+	
+	//sin
+    for (int i = 1; i <= 256; ++i)
+    {
+        float3 direction = GetDirectionVec2(WavesDirection * i * i * i);
+		
+        h += sin((z * direction.z + x * direction.x) * w + WaveAnimationTimer * WaveSpeed) * a;
+
+        w *= 0.82;
+        a *= 0.82;
+    }
+
+    return h;
+}
+
+float3 WaveGerstner(float x, float z, float3 p)
+{
+    float a = WaveHeight;
+    float k = WavesFrequency;
+    float3 direction = GetDirectionVec();
+
+    float f = k * ((x * direction.x + z * direction.z) + WaveAnimationTimer * WaveSpeed);
+
+    p.x += direction.x * (a * cos(f));
+    p.z += direction.z * (a * cos(f));
+    p.y = a * sin(f);
+    
+    return p;
+}
+
+float3 WaveGerstnerExperimental(float x, float z, float3 p)
+{
+    float a = WaveHeight;
+    float w = WavesFrequency;
+
+    for (int i = 1; i <= 256; ++i)
+    {
+        float3 direction = GetDirectionVec2(WavesDirection * i * i * i);
+        float f = w * ((x * direction.x + z * direction.z) + WaveAnimationTimer * WaveSpeed);
+
+        p.x += direction.x * (a * cos(f));
+        p.z += direction.z * (a * cos(f));
+        p.y += a * sin(f);
+        
+        w *= 0.82;
+        a *= 0.82;
+    }
+    
+    return p;
+}
+
+[numthreads(8, 1, 8)]
+void WaveAnimation(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x > Rows || id.z > Columns)
+        return;
+
+    int index = id.x + (id.z * (Columns + 1));
+
+    //Reset Vertices for non Gerstner
+    if (WaveTyp < 5)
+        Vertices[index] = VerticesBase[index];
+    
+    if (WaveTyp == 0)
+        Vertices[index].y = WaveSinCos(id.x, id.z);
+    else if (WaveTyp == 1)
+        Vertices[index].y = WaveSin(id.x, id.z);
+    else if (WaveTyp == 2)
+        Vertices[index].y = WaveSumSin(id.x, id.z);
+    else if (WaveTyp == 3)
+        Vertices[index].y = WaveSumSinCos(id.x, id.z);
+    else if (WaveTyp == 4)
+        Vertices[index].y = WaveExperimental(id.x, id.z);
+    else if (WaveTyp == 5)
+        Vertices[index] = WaveGerstner(id.x, id.z, VerticesBase[index]);
+    else if (WaveTyp == 6)
+        Vertices[index] = WaveGerstnerExperimental(id.x, id.z, VerticesBase[index]);
+}
