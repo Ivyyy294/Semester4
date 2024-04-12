@@ -219,6 +219,7 @@ MonoBehaviour:
   perlinAmplitude: 6
   perlinOctave: 3
   lacunarity: 2
+  persistance: 0.5
 --- !u!33 &647878261
 MeshFilter:
   m_ObjectHideFlags: 0

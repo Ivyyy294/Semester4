@@ -9,7 +9,15 @@ public class TerrainMeshGenerator : MeshGenerator
 	[SerializeField] float scale = 20.0f;
 	[SerializeField] float perlinAmplitude = 6.0f;
 	[SerializeField] float perlinOctave = 3.0f;
+
+	//controlls increase in frequency octaves
+	[Min (1f)]
 	[SerializeField] float lacunarity = 2.0f;
+
+	//controlls decrease in amplitude of octaves
+	[Range (0f, 1f)]
+	[SerializeField] float persistance = 0.5f;
+
 	// Start is called before the first frame update
     void Start()
     {
@@ -33,24 +41,26 @@ public class TerrainMeshGenerator : MeshGenerator
 		{
 			for (int x = 0; x <= quadRows; ++x, i++)
 			{
-				vertices[i].y = GetHeight (x, z, scale, perlinOctave, lacunarity) * perlinAmplitude;
+				vertices[i].y = GetHeight (x, z, scale, perlinOctave, lacunarity, persistance) * perlinAmplitude;
 			}
 		}
 	}
 
-	float GetHeight (float x, float z, float scale, float octaves, float lacunarity)
+	float GetHeight (float x, float z, float scale, float octaves, float lacunarity, float persistance)
 	{
 		if (scale <= 0)
 			scale = 0.0001f;
 
 		float height = 0f;
 		float frequency = 1f;
+		float amplitude = 1f;
 
 		for (int i = 0; i < octaves; ++i)
 		{
 			float perlinValue = Mathf.PerlinNoise ((x / scale) * frequency, (z / scale) * frequency);
-			height += perlinValue;
+			height += perlinValue * amplitude;
 			frequency *= lacunarity;
+			amplitude *= persistance;
 		}
 
 		return height;
