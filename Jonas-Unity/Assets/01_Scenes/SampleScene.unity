@@ -177,7 +177,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 425c26feceebc8342914bba311cae6bf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -215,6 +215,8 @@ MonoBehaviour:
   quadRows: 255
   quadColumns: 255
   quadGridComputeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
+  scale: 20
+  perlinAmplitude: 10
 --- !u!33 &647878261
 MeshFilter:
   m_ObjectHideFlags: 0

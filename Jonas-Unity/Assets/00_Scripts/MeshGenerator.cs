@@ -32,6 +32,7 @@ public class MeshGenerator : MonoBehaviour
 		//Set Mesh to MeshFilter
 		meshFilter = GetComponent<MeshFilter>();
 		meshFilter.mesh = mesh;
+		mesh.RecalculateNormals();
 	}
 
 	protected void CreateQuad()
