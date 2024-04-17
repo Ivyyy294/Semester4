@@ -1,0 +1,61 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel WaveAnimation
+
+#define PI 3.14159265358979323846
+
+RWStructuredBuffer<float3> Vertices;
+
+int Width;
+int Height;
+
+//Water
+float WaterLevelY;
+float WaveAnimationTimer;
+float WaveHeight;
+float WaveSpeed;
+float WavesDirection;
+float WavesFrequency;
+
+float3 GetDirectionVec(float angle)
+{
+    const float Deg2Rad = PI / 180.f;
+    return float3(cos(angle * Deg2Rad), 0.f, sin(angle * Deg2Rad));
+}
+
+float3 WaveGerstner(float x, float z, float3 p)
+{
+    float a = WaveHeight;
+    float w = WavesFrequency;
+
+    for (int i = 1; i <= 256; ++i)
+    {
+        float3 direction = GetDirectionVec(WavesDirection * i * i * i);
+        float f = w * ((x * direction.x + z * direction.z) + WaveAnimationTimer * WaveSpeed);
+
+        p.x += direction.x * (a * cos(f));
+        p.z += direction.z * (a * cos(f));
+        p.y += a * sin(f);
+        
+        w *= 0.82;
+        a *= 0.82;
+    }
+    
+    return p;
+}
+
+[numthreads(8, 1, 8)]
+void WaveAnimation(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x > Height || id.z > Width)
+        return;
+
+    int index = id.x + (id.z * (Width + 1));
+    
+    if (Vertices[index].y > WaterLevelY)
+        return;
+    else
+        Vertices[index].y = WaterLevelY;
+    
+    Vertices[index] = WaveGerstner(id.x, id.z, Vertices[index]);
+    //Vertices[index].y += WaterLevelY;
+}

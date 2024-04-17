@@ -212,12 +212,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   quadWidth: 1
-  quadRows: 255
-  quadColumns: 255
+  quadRows: 50
+  quadColumns: 50
   quadGridComputeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
+  shader: {fileID: 7200000, guid: 6100cb1d0cecd6e4397575cfc48861d9, type: 3}
   scale: 20
   perlinAmplitude: 6
-  perlinOctave: 3
+  perlinOctaves: 3
   lacunarity: 2
   persistance: 0.5
   terrainColorGradient:
@@ -250,6 +251,12 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 3
     m_NumAlphaKeys: 3
+  waterColor: {r: 0, g: 0, b: 1, a: 1}
+  waterLevelY: 4
+  waveAmplitude: 0
+  waveSpeed: 1
+  waveLength: 25
+  wavesDirection: 30
 --- !u!33 &647878261
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -462,7 +469,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2087581082
 Transform:
   m_ObjectHideFlags: 0
@@ -545,7 +552,7 @@ MonoBehaviour:
   quadColumns: 50
   quadGridComputeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
   WaveComputeShader: {fileID: 7200000, guid: cc059ebfad2ea944fbb9a8d8d1423ba7, type: 3}
-  waveTyp: 0
+  waveTyp: 6
   quadWaveHeight: 1
   quadWaveSpeed: 2
   quadWaveLength: 25

@@ -6,6 +6,7 @@ using UnityEngine;
 public class TerrainMeshGenerator : MeshGenerator
 {
 	[Header ("Terrain settings")]
+	[SerializeField] ComputeShader shader;
 	[SerializeField] float scale = 20.0f;
 	[Min (1f)]
 	[SerializeField] float perlinAmplitude = 6.0f;
@@ -21,6 +22,15 @@ public class TerrainMeshGenerator : MeshGenerator
 	[SerializeField] float persistance = 0.5f;
 
 	[SerializeField] Gradient terrainColorGradient;
+
+	[Header ("Water settings")]
+	[SerializeField] Color waterColor;
+	[SerializeField] float waterLevelY = 1f;
+	[SerializeField] float waveAmplitude = 1f;
+	[SerializeField] float waveSpeed = 2f;
+	[SerializeField] float waveLength = 25f;
+	[SerializeField] float wavesDirection = 30f;
+	float timer = 0f;
 
 	float minTerrainHeight = 0f;
 	float maxTerrainHeight = 0f;
@@ -46,7 +56,13 @@ public class TerrainMeshGenerator : MeshGenerator
 	{
 		AddHeightPerlin();
 		AddColor();
-		UpdateMesh();
+		
+		TerrainComputeShader();
+
+		mesh.colors = colors;
+		mesh.RecalculateNormals();
+		
+		//UpdateMesh();
 	}
 
 	void AddHeightPerlin()
@@ -55,7 +71,13 @@ public class TerrainMeshGenerator : MeshGenerator
 		{
 			for (int x = 0; x <= quadRows; ++x, i++)
 			{
-				vertices[i].y = GetHeight (x, z, scale, perlinOctaves, lacunarity, persistance) * perlinAmplitude;
+				float h = GetHeight (x, z, scale, perlinOctaves, lacunarity, persistance) * perlinAmplitude;
+				
+				//Cap y at water level
+				//if (h < waterLevelY)
+				//	h = waterLevelY;
+
+				vertices[i].y = h;
 
 				if (i == 0)
 				{
@@ -77,7 +99,12 @@ public class TerrainMeshGenerator : MeshGenerator
 		for (int z = 0, i = 0; z <= quadColumns; ++z)
 		{
 			for (int x = 0; x <= quadRows; ++x, i++)
-				colors[i] = terrainColorGradient.Evaluate (Mathf.InverseLerp (minTerrainHeight, maxTerrainHeight, vertices[i].y));
+			{
+				if (vertices[i].y <= waterLevelY)
+					colors[i] = waterColor;
+				else
+					colors[i] = terrainColorGradient.Evaluate(Mathf.InverseLerp(minTerrainHeight, maxTerrainHeight, vertices[i].y));
+			}
 		}
 	}
 
@@ -99,5 +126,35 @@ public class TerrainMeshGenerator : MeshGenerator
 		}
 
 		return height;
+	}
+
+	void TerrainComputeShader()
+	{
+		shader.SetFloat ("Width", quadColumns);
+		shader.SetFloat ("Height", quadRows);
+		shader.SetFloat ("WaterLevelY", waterLevelY);
+
+		shader.SetFloat ("WaveAnimationTimer", timer);
+		shader.SetFloat ("WaveHeight", waveAmplitude);
+		shader.SetFloat ("WaveSpeed", waveSpeed);
+		shader.SetFloat ("WavesDirection", wavesDirection);
+
+		float waveFrequency = 2f * Mathf.PI / waveLength;
+		shader.SetFloat ("WavesFrequency", waveFrequency);
+
+		verticeBuffer.SetData (vertices);
+		shader.SetBuffer (0, "Vertices", verticeBuffer);
+
+		int threadCountX = Mathf.CeilToInt((quadColumns + 1f) / 8f);
+		int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);
+
+		shader.Dispatch(0, threadCountX, 1, threadCountZ);
+
+		Vector3[] tmpVertices = new Vector3[vertices.Length];
+		verticeBuffer.GetData (tmpVertices);
+
+		mesh.vertices = tmpVertices;
+
+		timer += Time.deltaTime;
 	}
 }
