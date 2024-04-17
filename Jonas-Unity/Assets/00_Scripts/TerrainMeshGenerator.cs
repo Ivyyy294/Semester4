@@ -23,14 +23,14 @@ public class TerrainMeshGenerator : MeshGenerator
 
 	[SerializeField] Gradient terrainColorGradient;
 
-	[Header ("Water settings")]
-	[SerializeField] Color waterColor;
-	[SerializeField] float waterLevelY = 1f;
-	[SerializeField] float waveAmplitude = 1f;
-	[SerializeField] float waveSpeed = 2f;
-	[SerializeField] float waveLength = 25f;
-	[SerializeField] float wavesDirection = 30f;
-	float timer = 0f;
+	//[Header ("Water settings")]
+	//[SerializeField] Color waterColor;
+	//[SerializeField] float waterLevelY = 1f;
+	//[SerializeField] float waveAmplitude = 1f;
+	//[SerializeField] float waveSpeed = 2f;
+	//[SerializeField] float waveLength = 25f;
+	//[SerializeField] float wavesDirection = 30f;
+	//float timer = 0f;
 
 	float minTerrainHeight = 0f;
 	float maxTerrainHeight = 0f;
@@ -58,11 +58,8 @@ public class TerrainMeshGenerator : MeshGenerator
 		AddColor();
 		
 		TerrainComputeShader();
-
-		mesh.colors = colors;
-		mesh.RecalculateNormals();
 		
-		//UpdateMesh();
+		UpdateMesh();
 	}
 
 	void AddHeightPerlin()
@@ -99,12 +96,7 @@ public class TerrainMeshGenerator : MeshGenerator
 		for (int z = 0, i = 0; z <= quadColumns; ++z)
 		{
 			for (int x = 0; x <= quadRows; ++x, i++)
-			{
-				if (vertices[i].y <= waterLevelY)
-					colors[i] = waterColor;
-				else
-					colors[i] = terrainColorGradient.Evaluate(Mathf.InverseLerp(minTerrainHeight, maxTerrainHeight, vertices[i].y));
-			}
+				colors[i] = terrainColorGradient.Evaluate(Mathf.InverseLerp(minTerrainHeight, maxTerrainHeight, vertices[i].y));
 		}
 	}
 
@@ -130,31 +122,31 @@ public class TerrainMeshGenerator : MeshGenerator
 
 	void TerrainComputeShader()
 	{
-		shader.SetFloat ("Width", quadColumns);
-		shader.SetFloat ("Height", quadRows);
-		shader.SetFloat ("WaterLevelY", waterLevelY);
+		//shader.SetFloat ("Width", quadColumns);
+		//shader.SetFloat ("Height", quadRows);
+		//shader.SetFloat ("WaterLevelY", waterLevelY);
 
-		shader.SetFloat ("WaveAnimationTimer", timer);
-		shader.SetFloat ("WaveHeight", waveAmplitude);
-		shader.SetFloat ("WaveSpeed", waveSpeed);
-		shader.SetFloat ("WavesDirection", wavesDirection);
+		//shader.SetFloat ("WaveAnimationTimer", timer);
+		//shader.SetFloat ("WaveHeight", waveAmplitude);
+		//shader.SetFloat ("WaveSpeed", waveSpeed);
+		//shader.SetFloat ("WavesDirection", wavesDirection);
 
-		float waveFrequency = 2f * Mathf.PI / waveLength;
-		shader.SetFloat ("WavesFrequency", waveFrequency);
+		//float waveFrequency = 2f * Mathf.PI / waveLength;
+		//shader.SetFloat ("WavesFrequency", waveFrequency);
 
-		verticeBuffer.SetData (vertices);
-		shader.SetBuffer (0, "Vertices", verticeBuffer);
+		//verticeBuffer.SetData (vertices);
+		//shader.SetBuffer (0, "Vertices", verticeBuffer);
 
-		int threadCountX = Mathf.CeilToInt((quadColumns + 1f) / 8f);
-		int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);
+		//int threadCountX = Mathf.CeilToInt((quadColumns + 1f) / 8f);
+		//int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);
 
-		shader.Dispatch(0, threadCountX, 1, threadCountZ);
+		//shader.Dispatch(0, threadCountX, 1, threadCountZ);
 
-		Vector3[] tmpVertices = new Vector3[vertices.Length];
-		verticeBuffer.GetData (tmpVertices);
+		//Vector3[] tmpVertices = new Vector3[vertices.Length];
+		//verticeBuffer.GetData (tmpVertices);
 
-		mesh.vertices = tmpVertices;
+		//mesh.vertices = tmpVertices;
 
-		timer += Time.deltaTime;
+		//timer += Time.deltaTime;
 	}
 }
