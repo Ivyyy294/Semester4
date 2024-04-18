@@ -251,12 +251,6 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 3
     m_NumAlphaKeys: 3
-  waterColor: {r: 0, g: 0, b: 1, a: 1}
-  waterLevelY: 4
-  waveAmplitude: 0
-  waveSpeed: 1
-  waveLength: 25
-  wavesDirection: 30
 --- !u!33 &647878261
 MeshFilter:
   m_ObjectHideFlags: 0

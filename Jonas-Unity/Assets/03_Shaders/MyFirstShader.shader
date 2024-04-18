@@ -25,19 +25,10 @@ Shader "Custom/MyFirstShader"
 				#pragma fragment MyFragmentProgram
 
 				#include "UnityCG.cginc"
-
-				#define PI 3.14159265358979323846
-
 				//Variables
 				//Name exactly as in Properties
 				float4 _Tint;
 				sampler2D _MainTex;
-				float4 _WaterColor;
-				float _WaterLevel;
-				float _WaveHeight;
-				float _WaveSpeed;
-				float _WavesDirection;
-				float _WavesFrequency;
 
 				//Tilling and offset
 				//Tilling is scale (xy)
@@ -53,6 +44,55 @@ Shader "Custom/MyFirstShader"
 				struct Interpolators
 				{
 					float yLevel : TEST;
+					float4 position : SV_POSITION;
+					float2 uv : TEXCOORD0;
+				};
+
+				//Functions
+				Interpolators MyVertexProgram (VertexData v)
+				{
+					Interpolators i;
+					i.position = UnityObjectToClipPos (v.position);
+					i.uv = TRANSFORM_TEX (v.uv, _MainTex);
+					return i;
+				}
+
+				float4 MyFragmentProgram (Interpolators i) : SV_TARGET
+				{
+					return tex2D (_MainTex, i.uv) * _Tint;
+				}
+
+			ENDCG
+		}
+
+		//Render Water
+		Pass{
+			CGPROGRAM
+				#pragma vertex MyVertexProgram
+				//coloring individual pixels that lie inside the mesh's triangles.
+				#pragma fragment MyFragmentProgram
+
+				#include "UnityCG.cginc"
+
+				#define PI 3.14159265358979323846
+
+				//Variables
+				//Name exactly as in Properties
+				float4 _WaterColor;
+				float _WaterLevel;
+				float _WaveHeight;
+				float _WaveSpeed;
+				float _WavesDirection;
+				float _WavesFrequency;
+
+				struct VertexData
+				{
+					float4 position : POSITION;
+					float2 uv : TEXCOORD0;
+				};
+
+				struct Interpolators
+				{
 					float4 position : SV_POSITION;
 					float2 uv : TEXCOORD0;
 				};
@@ -97,27 +137,21 @@ Shader "Custom/MyFirstShader"
 				Interpolators MyVertexProgram (VertexData v)
 				{
 					Interpolators i;
-					i.yLevel = v.position.y;
 
 					if (v.position.y < _WaterLevel)
 						v.position = WaterAnimation (v.position);
+					else
+						v.position.y = _WaterLevel;
 
 					i.position = UnityObjectToClipPos (v.position);
-					//i.uv = v.uv * _MainTex_ST.xy + _MainTex_ST.zw;
-					//shortcut
-					i.uv = TRANSFORM_TEX (v.uv, _MainTex);
 
 					return i;
 				}
 
 				float4 MyFragmentProgram (Interpolators i) : SV_TARGET
 				{
-					if (i.yLevel > _WaterLevel)
-						return tex2D (_MainTex, i.uv) * _Tint;
-					else
-						return _WaterColor;
+					return _WaterColor;
 				}
-
 			ENDCG
 		}
 	}
