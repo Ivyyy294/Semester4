@@ -19,12 +19,15 @@ Shader "Custom/MyFirstShader"
 
 		//Object gets rendered per pass
 		Pass {
+			Tags {
+				"LightMode" = "ForwardBase"
+			}
 			CGPROGRAM
 				#pragma vertex MyVertexProgram
 				//coloring individual pixels that lie inside the mesh's triangles.
 				#pragma fragment MyFragmentProgram
 
-				#include "UnityCG.cginc"
+				#include "UnityStandardBRDF.cginc"
 				//Variables
 				//Name exactly as in Properties
 				float4 _Tint;
@@ -38,6 +41,7 @@ Shader "Custom/MyFirstShader"
 				struct VertexData
 				{
 					float4 position : POSITION;
+					float3 normal : NORMAL;
 					float2 uv : TEXCOORD0;
 				};
 
@@ -45,6 +49,8 @@ Shader "Custom/MyFirstShader"
 				{
 					float yLevel : TEST;
 					float4 position : SV_POSITION;
+					float3 worldPos : TEXCOORD2;
+					float3 normal : NORMAL;
 					float2 uv : TEXCOORD0;
 				};
 
@@ -52,14 +58,25 @@ Shader "Custom/MyFirstShader"
 				Interpolators MyVertexProgram (VertexData v)
 				{
 					Interpolators i;
+					i.worldPos = mul (unity_ObjectToWorld, v.position);
 					i.position = UnityObjectToClipPos (v.position);
 					i.uv = TRANSFORM_TEX (v.uv, _MainTex);
+					i.normal = UnityObjectToWorldNormal (v.normal);
 					return i;
 				}
 
 				float4 MyFragmentProgram (Interpolators i) : SV_TARGET
 				{
-					return tex2D (_MainTex, i.uv) * _Tint;
+
+					i.normal = normalize (i.normal);
+					float3 lightDir = _WorldSpaceLightPos0.xyz;
+					float3 viewDir = normalize (_WorldSpaceCameraPos - i.worldPos);
+					float3 lightColor = _LightColor0.rgb;
+					float3 albedo = tex2D (_MainTex, i.uv) * _Tint;
+					float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
+					//float3 reflectionDir = reflect (-lightDir, i.normal);
+
+					return float4 (diffuse, 1); // +DotClamped (viewDir, reflectionDir);
 				}
 
 			ENDCG
@@ -67,12 +84,15 @@ Shader "Custom/MyFirstShader"
 
 		//Render Water
 		Pass{
+			Tags {
+				"LightMode" = "ForwardBase"
+			}
 			CGPROGRAM
 				#pragma vertex MyVertexProgram
 				//coloring individual pixels that lie inside the mesh's triangles.
 				#pragma fragment MyFragmentProgram
 
-				#include "UnityCG.cginc"
+				#include "UnityStandardBRDF.cginc"
 
 				#define PI 3.14159265358979323846
 
@@ -88,12 +108,15 @@ Shader "Custom/MyFirstShader"
 				struct VertexData
 				{
 					float4 position : POSITION;
+					float3 normal : NORMAL;
 					float2 uv : TEXCOORD0;
 				};
 
 				struct Interpolators
 				{
 					float4 position : SV_POSITION;
+					float3 worldPos : TEXCOORD2;
+					float3 normal : NORMAL;
 					float2 uv : TEXCOORD0;
 				};
 
@@ -104,12 +127,15 @@ Shader "Custom/MyFirstShader"
 					return float3(cos (angle * Deg2Rad), 0.f, sin (angle * Deg2Rad));
 				}
 
-				float4 WaveGerstner (float4 p)
+				Interpolators WaveGerstner (float4 p)
 				{
 					float a = _WaveHeight;
 					float w = _WavesFrequency;
 					float x = p.x;
 					float z = p.z;
+
+					float3 tangent = float3(1, 0, 0);
+					float3 binormal = float3(0, 0, 1);
 
 					for (int i = 1; i <= 256; ++i)
 					{
@@ -120,14 +146,29 @@ Shader "Custom/MyFirstShader"
 						p.z += direction.z * (a * cos (f));
 						p.y += a * sin (f);
 
+						tangent += float3(
+							-direction.x * direction.x * (a * sin (f)),
+							direction.x * (a * cos (f)),
+							-direction.x * direction.y * (a * sin (f))
+							);
+						binormal += float3(
+							-direction.x * direction.y * (a * sin (f)),
+							direction.y * (a * cos (f)),
+							-direction.y * direction.y * (a * sin (f))
+							);
+
 						w *= 0.82;
 						a *= 0.82;
 					}
 
-					return p;
+					Interpolators inter;
+					inter.position = p;
+					inter.normal = normalize (cross (binormal, tangent));
+
+					return inter;
 				}
 
-				float4 WaterAnimation (float4 position)
+				Interpolators WaterAnimation (float4 position)
 				{
 					position.y = _WaterLevel;
 
@@ -138,19 +179,33 @@ Shader "Custom/MyFirstShader"
 				{
 					Interpolators i;
 
-					if (v.position.y < _WaterLevel)
-						v.position = WaterAnimation (v.position);
+					if (v.position.y <= _WaterLevel)
+						i = WaterAnimation (v.position);
 					else
-						v.position.y = _WaterLevel;
+					{
+						i.position = v.position;
+						i.position.y = _WaterLevel;
+						i.normal = float3 (0, 1, 0);
+					}
 
-					i.position = UnityObjectToClipPos (v.position);
+					i.normal = UnityObjectToWorldNormal (i.normal);
+					i.worldPos = mul (unity_ObjectToWorld, i.position);
+					i.position = UnityObjectToClipPos (i.position);
 
 					return i;
 				}
 
 				float4 MyFragmentProgram (Interpolators i) : SV_TARGET
 				{
-					return _WaterColor;
+					i.normal = normalize (i.normal);
+					float3 lightDir = _WorldSpaceLightPos0.xyz;
+					float3 viewDir = normalize (_WorldSpaceCameraPos - i.worldPos);
+					float3 lightColor = _LightColor0.rgb;
+					float3 albedo = _WaterColor;
+					float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
+					float3 reflectionDir = reflect (-lightDir, i.normal);
+
+					return float4 (diffuse, 1) + DotClamped (viewDir, reflectionDir) * 0.5;
 				}
 			ENDCG
 		}
