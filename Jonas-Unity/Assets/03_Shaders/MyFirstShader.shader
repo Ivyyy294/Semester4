@@ -129,6 +129,7 @@ Shader "Custom/MyFirstShader"
 
 				Interpolators WaveGerstner (float4 p)
 				{
+					p.y = _WaterLevel;
 					float a = _WaveHeight;
 					float w = _WavesFrequency;
 					float x = p.x;
@@ -168,19 +169,12 @@ Shader "Custom/MyFirstShader"
 					return inter;
 				}
 
-				Interpolators WaterAnimation (float4 position)
-				{
-					position.y = _WaterLevel;
-
-					return WaveGerstner (position);
-				}
-
 				Interpolators MyVertexProgram (VertexData v)
 				{
 					Interpolators i;
 
 					if (v.position.y <= _WaterLevel)
-						i = WaterAnimation (v.position);
+						i = WaveGerstner (v.position);
 					else
 					{
 						i.position = v.position;

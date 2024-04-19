@@ -217,7 +217,7 @@ MonoBehaviour:
   quadGridComputeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
   shader: {fileID: 7200000, guid: 6100cb1d0cecd6e4397575cfc48861d9, type: 3}
   scale: 20
-  perlinAmplitude: 6
+  perlinAmplitude: 10
   perlinOctaves: 3
   lacunarity: 2
   persistance: 0.5

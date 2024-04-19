@@ -81,11 +81,11 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WaterLevel: 10.42
-    - _WaveHeight: 0.15
-    - _WaveSpeed: 1.22
+    - _WaterLevel: 9.08
+    - _WaveHeight: 0.07
+    - _WaveSpeed: 1
     - _WavesDirection: 30
-    - _WavesFrequency: 1.48
+    - _WavesFrequency: 1.68
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
