@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 647878260}
   - component: {fileID: 647878262}
   - component: {fileID: 647878263}
+  - component: {fileID: 647878264}
   m_Layer: 0
   m_Name: TerrainMeshGenerator
   m_TagString: Untagged
@@ -258,6 +259,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waterColor: {r: 0, g: 0, b: 0, a: 0}
   waterLevelY: 1
+  waveAmplitude: 1
+  waveSpeed: 2
+  wavesDirection: 30
+--- !u!114 &647878264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 647878257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3966528c26a5ce74589db5b3895aafd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rockPrefab: {fileID: 8015935197961134104, guid: 701285dc8cce74643af31e3b87a0ee59, type: 3}
+  levelMinMax: {x: 16, y: 20}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
