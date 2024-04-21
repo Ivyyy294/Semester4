@@ -275,7 +275,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rockPrefab: {fileID: 8015935197961134104, guid: 701285dc8cce74643af31e3b87a0ee59, type: 3}
-  levelMinMax: {x: 16, y: 20}
+  levelMinMax: {x: 15, y: 18}
+  angleMax: 40
+  chance: 0.25
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
