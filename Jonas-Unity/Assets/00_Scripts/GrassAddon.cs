@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GrassGenerator : MonoBehaviour, ITerrainGeneratorAddon
+public class GrassAddon : MonoBehaviour, ITerrainGeneratorAddon
 {
 	public Vector2 levelMinMax;
 

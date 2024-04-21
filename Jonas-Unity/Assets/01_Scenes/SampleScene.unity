@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 647878259}
   - component: {fileID: 647878260}
   - component: {fileID: 647878262}
+  - component: {fileID: 647878263}
   m_Layer: 0
   m_Name: TerrainMeshGenerator
   m_TagString: Untagged
@@ -243,6 +244,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelMinMax: {x: 12.5, y: 15}
   grassPrefab: {fileID: 5359701397102930431, guid: 2615104be5ead8048a0c9d1311ceba27, type: 3}
+--- !u!114 &647878263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 647878257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe300e6fe5e69bc4d972410d6b47a21d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waterColor: {r: 0, g: 0, b: 0, a: 0}
+  waterLevelY: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

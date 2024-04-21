@@ -35,16 +35,6 @@ public class TerrainMeshGenerator : MeshGenerator
 	[Range (0f, 1f)]
 	[SerializeField] float persistance = 0.5f;
 
-	//[SerializeField] Gradient terrainColorGradient;
-	//[Header ("Water settings")]
-	//[SerializeField] Color waterColor;
-	//[SerializeField] float waterLevelY = 1f;
-	//[SerializeField] float waveAmplitude = 1f;
-	//[SerializeField] float waveSpeed = 2f;
-	//[SerializeField] float waveLength = 25f;
-	//[SerializeField] float wavesDirection = 30f;
-	//float timer = 0f;
-
 	TerrainSettings terrain = new TerrainSettings();
 	float minTerrainHeight = 0f;
 	float maxTerrainHeight = 0f;
