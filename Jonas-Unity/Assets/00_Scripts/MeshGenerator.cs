@@ -24,6 +24,8 @@ public class MeshGenerator : MonoBehaviour
 	//Shader values
 	protected ComputeBuffer verticeBuffer;
 
+	public Mesh GetMesh() {return mesh;}
+
 	protected void InitMesh()
 	{
 		//Init Mesh

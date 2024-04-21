@@ -2,11 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+interface ITerrainGeneratorAddon
+{
+	public void Apply(Mesh mesh);
+}
+
+[System.Serializable]
+class TerrainSettings
+{
+	public float scale = 20.0f;
+	public float perlinAmplitude = 6.0f;
+	public int perlinOctaves = 3;
+	public float lacunarity = 2.0f;
+	public float persistance = 0.5f;
+}
+
 [RequireComponent (typeof(MeshFilter))]
 public class TerrainMeshGenerator : MeshGenerator
 {
 	[Header ("Terrain settings")]
-	[SerializeField] ComputeShader shader;
 	[SerializeField] float scale = 20.0f;
 	[Min (1f)]
 	[SerializeField] float perlinAmplitude = 6.0f;
@@ -21,8 +35,7 @@ public class TerrainMeshGenerator : MeshGenerator
 	[Range (0f, 1f)]
 	[SerializeField] float persistance = 0.5f;
 
-	[SerializeField] Gradient terrainColorGradient;
-
+	//[SerializeField] Gradient terrainColorGradient;
 	//[Header ("Water settings")]
 	//[SerializeField] Color waterColor;
 	//[SerializeField] float waterLevelY = 1f;
@@ -32,6 +45,7 @@ public class TerrainMeshGenerator : MeshGenerator
 	//[SerializeField] float wavesDirection = 30f;
 	//float timer = 0f;
 
+	TerrainSettings terrain = new TerrainSettings();
 	float minTerrainHeight = 0f;
 	float maxTerrainHeight = 0f;
 
@@ -46,20 +60,20 @@ public class TerrainMeshGenerator : MeshGenerator
 		InitMesh();
 
 		//Center camera in z and place it with 50% spacing behind the Mesh
-		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, 20, quadRows * quadWidth / 2);
+		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, quadColumns * 0.5f, quadRows * quadWidth / 2);
 
 		//Focus camera at center vertice of Mesh
-		Camera.main.transform.LookAt (new Vector3 (quadColumns * quadWidth / 2f, 0f, quadRows * quadWidth / 2));
+		Camera.main.transform.LookAt (new Vector3 (0f, 0f, quadRows * quadWidth / 2));
     }
 
 	private void Update()
 	{
-		AddHeightPerlin();
-		AddColor();
-		
-		TerrainComputeShader();
-		
-		UpdateMesh();
+		if (UpdateTerrainSettings())
+		{
+			AddHeightPerlin();
+			UpdateMesh();
+			UpdateTerrainAddons();
+		}
 	}
 
 	void AddHeightPerlin()
@@ -89,17 +103,6 @@ public class TerrainMeshGenerator : MeshGenerator
 		}
 	}
 
-	void AddColor ()
-	{
-		colors = new Color[vertices.Length];
-		
-		for (int z = 0, i = 0; z <= quadColumns; ++z)
-		{
-			for (int x = 0; x <= quadRows; ++x, i++)
-				colors[i] = terrainColorGradient.Evaluate(Mathf.InverseLerp(minTerrainHeight, maxTerrainHeight, vertices[i].y));
-		}
-	}
-
 	float GetHeight (float x, float z, float scale, float octaves, float lacunarity, float persistance)
 	{
 		if (scale <= 0)
@@ -120,33 +123,29 @@ public class TerrainMeshGenerator : MeshGenerator
 		return height;
 	}
 
-	void TerrainComputeShader()
+	//Return true if settings were modified
+	bool UpdateTerrainSettings()
 	{
-		//shader.SetFloat ("Width", quadColumns);
-		//shader.SetFloat ("Height", quadRows);
-		//shader.SetFloat ("WaterLevelY", waterLevelY);
+		bool val = terrain.scale != scale
+			|| terrain.lacunarity != lacunarity
+			|| terrain.perlinAmplitude != perlinAmplitude
+			|| terrain.perlinOctaves != perlinOctaves
+			|| terrain.persistance != persistance
+			|| terrain.scale != scale;
 
-		//shader.SetFloat ("WaveAnimationTimer", timer);
-		//shader.SetFloat ("WaveHeight", waveAmplitude);
-		//shader.SetFloat ("WaveSpeed", waveSpeed);
-		//shader.SetFloat ("WavesDirection", wavesDirection);
+		terrain.scale = scale;
+		terrain.lacunarity = lacunarity;
+		terrain.perlinAmplitude = perlinAmplitude;
+		terrain.perlinOctaves = perlinOctaves;
+		terrain.persistance = persistance;
+		terrain.scale = scale;
 
-		//float waveFrequency = 2f * Mathf.PI / waveLength;
-		//shader.SetFloat ("WavesFrequency", waveFrequency);
+		return val;
+	}
 
-		//verticeBuffer.SetData (vertices);
-		//shader.SetBuffer (0, "Vertices", verticeBuffer);
-
-		//int threadCountX = Mathf.CeilToInt((quadColumns + 1f) / 8f);
-		//int threadCountZ = Mathf.CeilToInt((quadRows + 1f) / 8f);
-
-		//shader.Dispatch(0, threadCountX, 1, threadCountZ);
-
-		//Vector3[] tmpVertices = new Vector3[vertices.Length];
-		//verticeBuffer.GetData (tmpVertices);
-
-		//mesh.vertices = tmpVertices;
-
-		//timer += Time.deltaTime;
+	void UpdateTerrainAddons()
+	{
+		foreach(var i in GetComponents<ITerrainGeneratorAddon>())
+			i.Apply (mesh);
 	}
 }
