@@ -28,11 +28,13 @@ public class GrassAddon : MonoBehaviour, ITerrainGeneratorAddon
 					grassObjList[grassIndex].SetActive (true);
 					grassObjList[grassIndex].transform.position = v;
 					grassObjList[grassIndex].transform.up = mesh.normals[i];
+					grassObjList[grassIndex].transform.Rotate (transform.up, Random.Range (0f, 360f));
 				}
 				else
 				{
 					var obj = Instantiate (grassPrefab, v, Quaternion.identity, transform);
 					obj.transform.up = mesh.normals[i];
+					obj.transform.Rotate (transform.up, Random.Range (0f, 360f));
 					grassObjList.Add (obj);
 				}
 				grassIndex++;
