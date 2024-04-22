@@ -241,12 +241,14 @@ Shader "Custom/MyFirstShader"
 			};
 
 			//Help funcs
-			geometryOutput VertexOutput (float3 pos, float uv)
+			Interpolators VertexOutput (float3 pos, float uv, float3 normal)
 			{
-				geometryOutput o;
-				o.pos = UnityObjectToClipPos (pos);
-				o.uv = uv;
-				return o;
+				Interpolators i;
+				i.position = UnityObjectToClipPos (pos);
+				i.worldPos = mul (unity_ObjectToWorld, pos);
+				i.uv = uv;
+				i.normal = UnityObjectToWorldNormal (normal);
+				return i;
 			}
 
 			// Simple noise function, sourced from http://answers.unity.com/answers/624136/view.html
@@ -279,7 +281,7 @@ Shader "Custom/MyFirstShader"
 
 			//Shader
 			[maxvertexcount (6)]
-			void geo (triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
+			void geo (triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<Interpolators> triStream)
 			{
 				float3 pos = IN[0].vertex;
 				geometryOutput o;
@@ -290,6 +292,7 @@ Shader "Custom/MyFirstShader"
 				float height = (rand (pos.zyx) * _BladeHeightRandom) + _BladeHeight;
 				float width = ((rand (pos.xzy)* _BladeWidthRandom) + _BladeWidth) * 0.5f;
 
+				//Local to tangent space matrix
 				float3 vNormal = IN[0].normal;
 				float4 vTangent = IN[0].tangent;
 				float3 vBinormal = cross (vNormal, vTangent) * vTangent.w;
@@ -310,56 +313,27 @@ Shader "Custom/MyFirstShader"
 				float3x3 transformationMatrix = mul (mul (tangentToLocal, facingRotationMatrix), bendRotationMatrix);
 
 				//Front Face
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0)));
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(0, 0)));
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1)));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1), vNormal));
 
 				//Back Face
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(0, 0)));
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0)));
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1)));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1), vNormal));
 			}
-			//[maxvertexcount (6)]
-			//void geo (triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
-			//{
-			//	float3 pos = IN[0].vertex;
-			//	geometryOutput o;
 
-			//	if (pos.y < _MinGrassLevel || pos.y > _MaxGrassLevel)
-			//		return;
-
-			//	float3 vNormal = IN[0].normal;
-			//	float4 vTangent = IN[0].tangent;
-			//	float3 vBinormal = cross (vNormal, vTangent) * vTangent.w;
-
-			//	float3x3 tangentToLocal = float3x3(
-			//		vTangent.x, vBinormal.x, vNormal.x,
-			//		vTangent.y, vBinormal.y, vNormal.y,
-			//		vTangent.z, vBinormal.z, vNormal.z
-			//		);
-
-			//	float3x3 facingRotationMatrix = AngleAxis3x3 (rand (pos) * UNITY_TWO_PI, float3(0, 0, 1));
-			//	float3x3 bendRotationMatrix = AngleAxis3x3 (rand (pos.zzx) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
-			//	float3x3 transformationMatrix = mul (mul (tangentToLocal, facingRotationMatrix), bendRotationMatrix);
-
-			//	float height = (rand (pos.zyx) * 2 - 1) * _BladeHeightRandom + _BladeHeight;
-			//	float width = (rand (pos.xzy) * 2 - 1) * _BladeWidthRandom + _BladeWidth;
-
-			//	// Replace the multiplication matrix operand with our new transformationMatrix.
-			//	//Front Face
-			//	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0)));
-			//	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(1, 0)));
-			//	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, 0, height)), float2(0.5, 1)));
-
-			//	//Back Face
-			//	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(1, 0)));
-			//	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0)));
-			//	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, 0, height)), float2(0.5, 1)));
-			//}
-
-			float4 frag (geometryOutput i, fixed facing : VFACE) : SV_Target
+			float4 frag (Interpolators i, fixed facing : VFACE) : SV_Target
 			{
-				return lerp (_BottomColor, _TopColor, i.uv.y);
+				i.normal = normalize (i.normal);
+				float3 lightDir = _WorldSpaceLightPos0.xyz;
+				float3 viewDir = normalize (_WorldSpaceCameraPos - i.worldPos);
+				float3 lightColor = _LightColor0.rgb;
+				float3 albedo = lerp (_BottomColor, _TopColor, i.uv.y);
+				float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
+				float3 reflectionDir = reflect (-lightDir, i.normal);
+
+				return float4 (diffuse, 1) + DotClamped (viewDir, reflectionDir) * 0.15;
 			}
 			ENDCG
 		}
