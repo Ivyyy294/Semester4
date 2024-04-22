@@ -7,6 +7,12 @@ interface ITerrainGeneratorAddon
 	public void Apply(Mesh mesh);
 }
 
+interface ITerrainGeneratorShaderAddon
+{
+	public void LoadDefaultValues (Material m);
+	public void SetMaterialProperties (MaterialPropertyBlock propertyBlock);
+}
+
 [System.Serializable]
 class TerrainSettings
 {
@@ -38,6 +44,7 @@ public class TerrainMeshGenerator : MeshGenerator
 	TerrainSettings terrain = new TerrainSettings();
 	float minTerrainHeight = 0f;
 	float maxTerrainHeight = 0f;
+	MeshRenderer meshRenderer;
 
 	// Start is called before the first frame update
     void Start()
@@ -48,6 +55,11 @@ public class TerrainMeshGenerator : MeshGenerator
 		AddHeightPerlin();
 
 		InitMesh();
+
+		//Init Shader Addons
+		meshRenderer = GetComponent<MeshRenderer>();
+		foreach(var i in GetComponents<ITerrainGeneratorShaderAddon>())
+			i.LoadDefaultValues (meshRenderer.material);
 
 		//Center camera in z and place it with 50% spacing behind the Mesh
 		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, quadColumns * 0.5f, quadRows * quadWidth / 2);
@@ -64,6 +76,8 @@ public class TerrainMeshGenerator : MeshGenerator
 			UpdateMesh();
 			UpdateTerrainAddons();
 		}
+
+		UpdateTerrainShaderAddons();
 	}
 
 	void AddHeightPerlin()
@@ -137,5 +151,14 @@ public class TerrainMeshGenerator : MeshGenerator
 	{
 		foreach(var i in GetComponents<ITerrainGeneratorAddon>())
 			i.Apply (mesh);
+	}
+
+	void UpdateTerrainShaderAddons()
+	{
+		MaterialPropertyBlock mp = new MaterialPropertyBlock();
+		foreach(var i in GetComponents<ITerrainGeneratorShaderAddon>())
+			i.SetMaterialProperties (mp);
+
+		meshRenderer.SetPropertyBlock (mp);
 	}
 }

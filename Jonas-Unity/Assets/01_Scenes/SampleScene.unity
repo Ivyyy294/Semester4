@@ -244,8 +244,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06a4038ccee97eb4da42dfb089b737d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelMinMax: {x: 12.5, y: 15}
-  grassPrefab: {fileID: 5359701397102930431, guid: 2615104be5ead8048a0c9d1311ceba27, type: 3}
+  MinGrassLevel: 0
+  MaxGrassLevel: 0
+  TopColor: {r: 0, g: 0, b: 0, a: 0}
+  BottomColor: {r: 0, g: 0, b: 0, a: 0}
+  BladeWidth: 0
+  BladeHeight: 0
+  BendRotationRandom: 0
+  BladeWidthRandom: 0
+  BladeHeightRandom: 0
+  TessellationUniform: 0
 --- !u!114 &647878263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,7 +261,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 647878257}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe300e6fe5e69bc4d972410d6b47a21d, type: 3}
   m_Name: 
