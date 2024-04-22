@@ -66,6 +66,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BendRotationRandom: 0.25
+    - _BladeHeight: 0.5
+    - _BladeHeightRandom: 0
+    - _BladeWidth: 0.112
+    - _BladeWidthRandom: 0
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -73,13 +78,17 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 1
+    - _MaxGrassLevel: 17.2
     - _Metallic: 0
+    - _MinGrassLevel: 12.2
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TessellationUniform: 6.2
+    - _TranslucentGain: 0.064
     - _UVSec: 0
     - _WaterLevel: 11.99
     - _WaveHeight: 0.07
@@ -88,8 +97,10 @@ Material:
     - _WavesFrequency: 1.68
     - _ZWrite: 1
     m_Colors:
+    - _BottomColor: {r: 0.058408808, g: 0.38679248, b: 0, a: 1}
     - _Color: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _TopColor: {r: 0.4039216, g: 1, b: 0, a: 0.9647059}
     - _WaterColor: {r: 0, g: 0.49019623, b: 1, a: 1}
   m_BuildTextureStacks: []

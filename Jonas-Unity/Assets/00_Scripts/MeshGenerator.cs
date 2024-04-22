@@ -44,6 +44,7 @@ public class MeshGenerator : MonoBehaviour
 		mesh.uv = uv;
 		mesh.colors = colors;
 		mesh.RecalculateNormals();
+		mesh.RecalculateTangents();
 	}
 
 	protected void CreateQuad()
