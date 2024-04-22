@@ -15,6 +15,9 @@ public class GrassAddon : MonoBehaviour, ITerrainGeneratorAddon
 
 	public void Apply (Mesh mesh)
 	{
+		if (!mesh || !enabled)
+			return;
+
 		int grassIndex = 0;
 
 		for (int i = 0; i < mesh.vertexCount; ++i)

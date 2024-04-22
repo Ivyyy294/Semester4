@@ -67,7 +67,6 @@ Shader "Custom/MyFirstShader"
 
 				float4 MyFragmentProgram (Interpolators i) : SV_TARGET
 				{
-
 					i.normal = normalize (i.normal);
 					float3 lightDir = _WorldSpaceLightPos0.xyz;
 					float3 viewDir = normalize (_WorldSpaceCameraPos - i.worldPos);

@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 647878262}
   - component: {fileID: 647878263}
   - component: {fileID: 647878264}
+  - component: {fileID: 647878265}
   m_Layer: 0
   m_Name: TerrainMeshGenerator
   m_TagString: Untagged
@@ -215,8 +216,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   quadWidth: 1
-  quadRows: 50
-  quadColumns: 50
+  quadRows: 100
+  quadColumns: 100
   quadGridComputeShader: {fileID: 7200000, guid: d538965d8d4a46640a941b3e03f50b89, type: 3}
   scale: 20
   perlinAmplitude: 15
@@ -278,6 +279,22 @@ MonoBehaviour:
   levelMinMax: {x: 15, y: 18}
   angleMax: 40
   chance: 0.25
+--- !u!114 &647878265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 647878257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ce64a46fca7094b9e91f0e7d0034f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treePrefab: {fileID: 8641761088800002464, guid: 744c285d1ffac2345aea4a479bcdc9d4, type: 3}
+  levelMinMax: {x: 15, y: 20}
+  angleMax: 90
+  chance: 0.1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
