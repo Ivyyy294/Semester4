@@ -15,6 +15,26 @@ Shader "Custom/MyFirstShader"
 		_WavesFrequency ("Water Frequency", Float) = 1
 	}
 
+	CGINCLUDE
+		#include "UnityStandardBRDF.cginc"
+		#define PI 3.14159265358979323846
+
+		struct VertexData
+		{
+			float4 position : POSITION;
+			float3 normal : NORMAL;
+			float2 uv : TEXCOORD0;
+		};
+
+		struct Interpolators
+		{
+			float4 position : SV_POSITION;
+			float3 worldPos : TEXCOORD2;
+			float3 normal : NORMAL;
+			float2 uv : TEXCOORD0;
+		};
+	ENDCG
+
 	SubShader{
 
 		//Object gets rendered per pass
@@ -27,7 +47,6 @@ Shader "Custom/MyFirstShader"
 				//coloring individual pixels that lie inside the mesh's triangles.
 				#pragma fragment MyFragmentProgram
 
-				#include "UnityStandardBRDF.cginc"
 				//Variables
 				//Name exactly as in Properties
 				float4 _Tint;
@@ -36,23 +55,7 @@ Shader "Custom/MyFirstShader"
 				//Tilling and offset
 				//Tilling is scale (xy)
 				//Offset (zw)
-				float4 _MainTex_ST; 
-
-				struct VertexData
-				{
-					float4 position : POSITION;
-					float3 normal : NORMAL;
-					float2 uv : TEXCOORD0;
-				};
-
-				struct Interpolators
-				{
-					float yLevel : TEST;
-					float4 position : SV_POSITION;
-					float3 worldPos : TEXCOORD2;
-					float3 normal : NORMAL;
-					float2 uv : TEXCOORD0;
-				};
+				float4 _MainTex_ST;
 
 				//Functions
 				Interpolators MyVertexProgram (VertexData v)
@@ -91,9 +94,6 @@ Shader "Custom/MyFirstShader"
 				//coloring individual pixels that lie inside the mesh's triangles.
 				#pragma fragment MyFragmentProgram
 
-				#include "UnityStandardBRDF.cginc"
-
-				#define PI 3.14159265358979323846
 
 				//Variables
 				//Name exactly as in Properties
@@ -103,21 +103,6 @@ Shader "Custom/MyFirstShader"
 				float _WaveSpeed;
 				float _WavesDirection;
 				float _WavesFrequency;
-
-				struct VertexData
-				{
-					float4 position : POSITION;
-					float3 normal : NORMAL;
-					float2 uv : TEXCOORD0;
-				};
-
-				struct Interpolators
-				{
-					float4 position : SV_POSITION;
-					float3 worldPos : TEXCOORD2;
-					float3 normal : NORMAL;
-					float2 uv : TEXCOORD0;
-				};
 
 				//Functions
 				float3 GetDirectionVec (float angle)
