@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.4964131, b: 0.57481605, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -283,7 +283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3966528c26a5ce74589db5b3895aafd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rockPrefab: {fileID: 8015935197961134104, guid: 701285dc8cce74643af31e3b87a0ee59, type: 3}
+  rockPrefab: {fileID: 7088034624560197325, guid: 02323f354a4cb6343a4c4466e3cabdcb, type: 3}
   levelMinMax: {x: 15, y: 18}
   angleMax: 40
   chance: 0.25
@@ -299,9 +299,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02ce64a46fca7094b9e91f0e7d0034f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  treePrefab: {fileID: 8641761088800002464, guid: 744c285d1ffac2345aea4a479bcdc9d4, type: 3}
+  treePrefab: {fileID: 2275399831387296705, guid: 80134143588e09c4892e00879262fce3, type: 3}
   levelMinMax: {x: 15, y: 20}
-  angleMax: 90
+  angleMax: 45
   chance: 0.1
 --- !u!1 &705507993
 GameObject:

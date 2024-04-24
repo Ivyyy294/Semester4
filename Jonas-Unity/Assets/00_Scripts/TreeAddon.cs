@@ -29,6 +29,10 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 	{
 		if (!mesh || !enabled)
 			return;
+				
+		//Disable unused grass
+		for (int i = 0; i < treeObjList.Count; ++i)
+			treeObjList[i].SetActive (false);
 
 		int treeIndex = 0;
 
@@ -37,7 +41,7 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 			Vector3 v = mesh.vertices[i];
 			float angle = Mathf.Abs (Vector3.Angle(mesh.normals[i], Vector3.up));
 
-			if (v.y >= levelMinMax.x && v.y <= levelMinMax.y && angle <= angleMax && chance >= Random.value)
+			if (v.y >= levelMinMax.x && v.y <= levelMinMax.y && angle <= angleMax && chance > rand (v))
 			{
 				if (treeIndex < treeObjList.Count)
 				{
@@ -55,10 +59,6 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 			}
 		}
 
-		//Disable unused grass
-		for (int i = treeObjList.Count - 1; i > treeIndex; --i)
-			treeObjList[i].SetActive (false);
-
 		previousSettings.levelMinMax = levelMinMax;
 		previousSettings.angleMax = angleMax;
 		previousSettings.chance = chance;
@@ -71,5 +71,12 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 			|| angleMax != previousSettings.angleMax
 			|| chance != previousSettings.chance)
 			Apply(previousMesh);
+	}
+
+	float rand (Vector3 co)
+	{
+		float dot = Vector3.Dot (co, new Vector3(12.9898f, 78.233f, 53.539f));
+
+		return Mathf.Abs (Mathf.Sin (dot * 43758.5453f));
 	}
 }

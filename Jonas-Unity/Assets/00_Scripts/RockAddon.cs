@@ -32,19 +32,21 @@ public class RockAddon : MonoBehaviour, ITerrainGeneratorAddon
 
 		int rockIndex = 0;
 
+		//Disable unused grass
+		for (int i = 0; i < rockObjList.Count; ++i)
+			rockObjList[i].SetActive (false);
+
 		for (int i = 0; i < mesh.vertexCount; ++i)
 		{
 			Vector3 v = mesh.vertices[i];
 			float angle = Mathf.Abs (Vector3.Angle(mesh.normals[i], Vector3.up));
 
-			if (v.y >= levelMinMax.x && v.y <= levelMinMax.y && angle <= angleMax && chance >= Random.value)
+			if (v.y >= levelMinMax.x && v.y <= levelMinMax.y && angle <= angleMax && chance > rand (v))
 			{
-
 				if (rockIndex < rockObjList.Count)
 				{
 					rockObjList[rockIndex].SetActive (true);
 					rockObjList[rockIndex].transform.position = v;
-					rockObjList[rockIndex].transform.up = Random.insideUnitSphere;
 				}
 				else
 				{
@@ -55,10 +57,6 @@ public class RockAddon : MonoBehaviour, ITerrainGeneratorAddon
 				rockIndex++;
 			}
 		}
-
-		//Disable unused grass
-		for (int i = rockObjList.Count - 1; i > rockIndex; --i)
-			rockObjList[i].SetActive (false);
 
 		previousSettings.levelMinMax = levelMinMax;
 		previousSettings.angleMax = angleMax;
@@ -72,5 +70,12 @@ public class RockAddon : MonoBehaviour, ITerrainGeneratorAddon
 			|| angleMax != previousSettings.angleMax
 			|| chance != previousSettings.chance)
 			Apply(previousMesh);
+	}
+
+	float rand (Vector3 co)
+	{
+		float dot = Vector3.Dot (co, new Vector3(12.9898f, 78.233f, 53.539f));
+
+		return Mathf.Abs (Mathf.Sin (dot * 43758.5453f));
 	}
 }
