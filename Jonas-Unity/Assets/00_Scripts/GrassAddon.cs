@@ -2,31 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public struct GrassProperties
+{
+	[Range(0f, 50f)] public float MinGrassLevel;
+	[Range(0f, 50f)] public float MaxGrassLevel;
+	public Color TopColor;
+	public Color BottomColor;
+	[Range(0.01f, 1f)] public float BladeWidth;
+	[Range(0.01f, 1f)] public float BladeHeight;
+	[Range(0f, 1)] public float BendRotationRandom;
+	[Range(0f, 1)] public float BladeWidthRandom;
+	[Range(0f, 1)] public float BladeHeightRandom;
+	[Range(1, 64)] public float TessellationUniform;
+}
+
 public class GrassAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
 {
-	[SerializeField] [Range(0f, 50f)] float MinGrassLevel;
-	[SerializeField] [Range(0f, 50f)] float MaxGrassLevel;
-	[SerializeField] Color TopColor;
-	[SerializeField] Color BottomColor;
-	[SerializeField] [Range(0.01f, 1f)] float BladeWidth;
-	[SerializeField] [Range(0.01f, 1f)] float BladeHeight;
-	[SerializeField] [Range(0f, 1)] float BendRotationRandom;
-	[SerializeField] [Range(0f, 1)] float BladeWidthRandom;
-	[SerializeField] [Range(0f, 1)] float BladeHeightRandom;
-	[SerializeField] [Range(1, 64)]float TessellationUniform;
+	public GrassProperties properties;
 
 	public void LoadDefaultValues(Material material)
 	{		
-		MinGrassLevel = material.GetFloat ("_MinGrassLevel");
-		MaxGrassLevel = material.GetFloat ("_MaxGrassLevel");
-		TopColor = material.GetColor ("_TopColor");
-		BottomColor = material.GetColor ("_BottomColor");
-		BladeWidth = material.GetFloat ("_BladeWidth");
-		BladeHeight = material.GetFloat ("_BladeHeight");
-		BendRotationRandom = material.GetFloat ("_BendRotationRandom");
-		BladeWidthRandom = material.GetFloat ("_BladeWidthRandom");
-		BladeHeightRandom = material.GetFloat ("_BladeHeightRandom");
-		TessellationUniform = material.GetFloat ("_TessellationUniform");
+		properties.MinGrassLevel = material.GetFloat ("_MinGrassLevel");
+		properties.MaxGrassLevel = material.GetFloat ("_MaxGrassLevel");
+		properties.TopColor = material.GetColor ("_TopColor");
+		properties.BottomColor = material.GetColor ("_BottomColor");
+		properties.BladeWidth = material.GetFloat ("_BladeWidth");
+		properties.BladeHeight = material.GetFloat ("_BladeHeight");
+		properties.BendRotationRandom = material.GetFloat ("_BendRotationRandom");
+		properties.BladeWidthRandom = material.GetFloat ("_BladeWidthRandom");
+		properties.BladeHeightRandom = material.GetFloat ("_BladeHeightRandom");
+		properties.TessellationUniform = material.GetFloat ("_TessellationUniform");
 		//waterLevelY = material.GetFloat ("_WaterLevel");
 		//waveAmplitude = material.GetFloat ("_WaveHeight");
 		//waveSpeed = material.GetFloat ("_WaveSpeed");
@@ -35,15 +41,15 @@ public class GrassAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
 
 	public void SetMaterialProperties (MaterialPropertyBlock propertyBlock)
 	{
-		propertyBlock.SetFloat ("_MinGrassLevel", MinGrassLevel);
-        propertyBlock.SetFloat ("_MaxGrassLevel", MaxGrassLevel);
-		propertyBlock.SetColor ("_TopColor", TopColor);
-        propertyBlock.SetColor ("_BottomColor", BottomColor);
-		propertyBlock.SetFloat ("_BladeWidth", BladeWidth);
-        propertyBlock.SetFloat ("_BladeHeight", BladeHeight);
-		propertyBlock.SetFloat ("_BendRotationRandom", BendRotationRandom);
-        propertyBlock.SetFloat ("_BladeWidthRandom", BladeWidthRandom);
-		propertyBlock.SetFloat ("_BladeHeightRandom", BladeHeightRandom);
-        propertyBlock.SetFloat ("_TessellationUniform", TessellationUniform);
+		propertyBlock.SetFloat ("_MinGrassLevel", properties.MinGrassLevel);
+        propertyBlock.SetFloat ("_MaxGrassLevel", properties.MaxGrassLevel);
+		propertyBlock.SetColor ("_TopColor", properties.TopColor);
+        propertyBlock.SetColor ("_BottomColor", properties.BottomColor);
+		propertyBlock.SetFloat ("_BladeWidth", properties.BladeWidth);
+        propertyBlock.SetFloat ("_BladeHeight", properties.BladeHeight);
+		propertyBlock.SetFloat ("_BendRotationRandom", properties.BendRotationRandom);
+        propertyBlock.SetFloat ("_BladeWidthRandom", properties.BladeWidthRandom);
+		propertyBlock.SetFloat ("_BladeHeightRandom", properties.BladeHeightRandom);
+        propertyBlock.SetFloat ("_TessellationUniform", properties.TessellationUniform);
 	}
 }
