@@ -78,7 +78,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _MaxGrassLevel: 20.7
+    - _MaxGrassLevel: 25
     - _Metallic: 0
     - _MinGrassLevel: 12.2
     - _Mode: 0

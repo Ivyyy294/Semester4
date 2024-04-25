@@ -180,6 +180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   treePrefab: {fileID: 2275399831387296705, guid: 80134143588e09c4892e00879262fce3, type: 3}
-  levelMinMax: {x: 15, y: 20}
-  angleMax: 45
-  chance: 0.1
+  properties:
+    levelMinMax: {x: 12, y: 20}
+    angleMax: 20
+    chance: 0.1

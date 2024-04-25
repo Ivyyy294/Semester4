@@ -3,23 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class TreeSettings
+public struct TreeSettings
 {
 	public Vector2 levelMinMax;
-	public float angleMax = 45f;
-	public float chance;
+	[Range (0f, 90f)] public float angleMax;
+	[Range (0f, 1f)] public float chance;
 }
 
 class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 {
 	public GameObject treePrefab;
-	public Vector2 levelMinMax;
-
-	[Range (0f, 90f)]
-	public float angleMax;
-
-	[Range (0f, 1f)]
-	public float chance = 1f;
+	public TreeSettings properties;
 
 	List <GameObject> treeObjList = new List<GameObject>();
 	TreeSettings previousSettings = new TreeSettings();
@@ -41,7 +35,7 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 			Vector3 v = mesh.vertices[i];
 			float angle = Mathf.Abs (Vector3.Angle(mesh.normals[i], Vector3.up));
 
-			if (v.y >= levelMinMax.x && v.y <= levelMinMax.y && angle <= angleMax && chance > rand (v))
+			if (v.y >= properties.levelMinMax.x && v.y <= properties.levelMinMax.y && angle <= properties.angleMax && properties.chance > rand (v))
 			{
 				if (treeIndex < treeObjList.Count)
 				{
@@ -60,17 +54,15 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 			}
 		}
 
-		previousSettings.levelMinMax = levelMinMax;
-		previousSettings.angleMax = angleMax;
-		previousSettings.chance = chance;
+		previousSettings = properties;
 		previousMesh = mesh;
 	}
 
 	private void Update()
 	{
-		if (levelMinMax != previousSettings.levelMinMax
-			|| angleMax != previousSettings.angleMax
-			|| chance != previousSettings.chance)
+		if (properties.levelMinMax != previousSettings.levelMinMax
+			|| properties.angleMax != previousSettings.angleMax
+			|| properties.chance != previousSettings.chance)
 			Apply(previousMesh);
 	}
 

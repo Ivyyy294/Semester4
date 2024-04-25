@@ -7,6 +7,7 @@ class AddonContainer
 	public WaterAddon water;
 	public GrassAddon grass;
 	public RockAddon rock;
+	public TreeAddon tree;
 }
 
 public class InfiniteTerrain : MonoBehaviour
@@ -21,6 +22,7 @@ public class InfiniteTerrain : MonoBehaviour
 	[SerializeField] WaterProperties waterProperties;
 	[SerializeField] GrassProperties grassProperties;
 	[SerializeField] RockSettings rockProperties;
+	[SerializeField] TreeSettings treeProperties;
 
 	List <AddonContainer> addons = new List<AddonContainer>();
 
@@ -50,6 +52,7 @@ public class InfiniteTerrain : MonoBehaviour
 				addon.water = go.GetComponent <WaterAddon>();
 				addon.grass = go.GetComponent<GrassAddon>();
 				addon.rock = go.GetComponent<RockAddon>();
+				addon.tree = go.GetComponent<TreeAddon>();
 
 				addons.Add (addon);
                 yield return new WaitForEndOfFrame();
@@ -66,6 +69,7 @@ public class InfiniteTerrain : MonoBehaviour
 			waterProperties = addons[0].water.properties;
 			grassProperties = addons[0].grass.properties;
 			rockProperties = addons[0].rock.properties;
+			treeProperties = addons[0].tree.properties;
 			initDone = true;
 		}
 
@@ -74,6 +78,7 @@ public class InfiniteTerrain : MonoBehaviour
 			i.water.properties = waterProperties;
 			i.grass.properties = grassProperties;
 			i.rock.properties = rockProperties;
+			i.tree.properties = treeProperties;
 		}
 	}
 }
