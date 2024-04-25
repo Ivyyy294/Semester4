@@ -46,11 +46,12 @@ public class RockAddon : MonoBehaviour, ITerrainGeneratorAddon
 				if (rockIndex < rockObjList.Count)
 				{
 					rockObjList[rockIndex].SetActive (true);
-					rockObjList[rockIndex].transform.position = v;
+					rockObjList[rockIndex].transform.localPosition = v;
 				}
 				else
 				{
-					var obj = Instantiate (rockPrefab, v, Quaternion.identity, transform);
+					var obj = Instantiate (rockPrefab, transform);
+					obj.transform.localPosition = v;
 					obj.transform.up = Random.insideUnitSphere;
 					rockObjList.Add (obj);
 				}

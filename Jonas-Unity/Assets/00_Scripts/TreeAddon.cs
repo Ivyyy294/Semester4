@@ -46,12 +46,13 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 				if (treeIndex < treeObjList.Count)
 				{
 					treeObjList[treeIndex].SetActive (true);
-					treeObjList[treeIndex].transform.position = v;
+					treeObjList[treeIndex].transform.localPosition = v;
 					treeObjList[treeIndex].transform.up = Vector3.up;
 				}
 				else
 				{
-					var obj = Instantiate (treePrefab, v, Quaternion.identity, transform);
+					var obj = Instantiate (treePrefab, transform);
+					obj.transform.localPosition = v;
 					obj.transform.up = Vector3.up;
 					treeObjList.Add (obj);
 				}

@@ -118,6 +118,8 @@ Shader "Custom/MyFirstShader"
 				float _WaveSpeed;
 				float _WavesDirection;
 				float _WavesFrequency;
+				float _OffsetX;
+				float _OffsetZ;
 
 				//Functions
 				float3 GetDirectionVec (float angle)
@@ -131,8 +133,8 @@ Shader "Custom/MyFirstShader"
 					p.y = _WaterLevel;
 					float a = _WaveHeight;
 					float w = _WavesFrequency;
-					float x = p.x;
-					float z = p.z;
+					float x = p.x + _OffsetX;
+					float z = p.z + _OffsetZ;
 
 					float3 tangent = float3(1, 0, 0);
 					float3 binormal = float3(0, 0, 1);
@@ -172,14 +174,7 @@ Shader "Custom/MyFirstShader"
 				{
 					Interpolators i;
 
-					if (v.position.y <= _WaterLevel)
-						i = WaveGerstner (v.position);
-					else
-					{
-						i.position = v.position;
-						i.position.y = _WaterLevel;
-						i.normal = float3 (0, 1, 0);
-					}
+					i = WaveGerstner (v.position);
 
 					i.normal = UnityObjectToWorldNormal (i.normal);
 					i.worldPos = mul (unity_ObjectToWorld, i.position);

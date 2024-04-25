@@ -90,7 +90,7 @@ Material:
     - _TessellationUniform: 12
     - _TranslucentGain: 0.064
     - _UVSec: 0
-    - _WaterLevel: 11.99
+    - _WaterLevel: 11.9
     - _WaveHeight: 0.07
     - _WaveSpeed: 1
     - _WavesDirection: 30

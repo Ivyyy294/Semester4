@@ -45,10 +45,18 @@ public class TerrainMeshGenerator : MeshGenerator
 	float minTerrainHeight = 0f;
 	float maxTerrainHeight = 0f;
 	MeshRenderer meshRenderer;
+	float offsetX;
+	float offsetZ;
+	int chunkDimention;
 
-	// Start is called before the first frame update
-    void Start()
-    {
+	public void Init (int _chunkDimention, float x, float z)
+	{
+		chunkDimention = _chunkDimention;
+		quadRows = chunkDimention;
+		quadColumns = chunkDimention;
+		offsetX = x;
+		offsetZ = z;
+
         //Generate Quad Grid
 		CreateQuad();
 
@@ -60,13 +68,7 @@ public class TerrainMeshGenerator : MeshGenerator
 		meshRenderer = GetComponent<MeshRenderer>();
 		foreach(var i in GetComponents<ITerrainGeneratorShaderAddon>())
 			i.LoadDefaultValues (meshRenderer.material);
-
-		//Center camera in z and place it with 50% spacing behind the Mesh
-		Camera.main.transform.position = new Vector3 (quadColumns * quadWidth, quadColumns * 0.5f, quadRows * quadWidth / 2);
-
-		//Focus camera at center vertice of Mesh
-		Camera.main.transform.LookAt (new Vector3 (0f, 0f, quadRows * quadWidth / 2));
-    }
+	}
 
 	private void Update()
 	{
@@ -86,23 +88,19 @@ public class TerrainMeshGenerator : MeshGenerator
 		{
 			for (int x = 0; x <= quadRows; ++x, i++)
 			{
-				float h = GetHeight (x, z, scale, perlinOctaves, lacunarity, persistance) * perlinAmplitude;
-				
-				//Cap y at water level
-				//if (h < waterLevelY)
-				//	h = waterLevelY;
+				float h = GetHeight(x + (offsetZ * chunkDimention), z + (offsetX * chunkDimention), scale, perlinOctaves, lacunarity, persistance) * perlinAmplitude;
 
 				vertices[i].y = h;
 
-				if (i == 0)
-				{
-					minTerrainHeight = vertices[i].y;
-					maxTerrainHeight = vertices[i].y;
-				}
-				else if (vertices[i].y < minTerrainHeight)
-					minTerrainHeight = vertices[i].y;
-				else if (vertices[i].y > maxTerrainHeight)
-					maxTerrainHeight = vertices[i].y;
+				//if (i == 0)
+				//{
+				//	minTerrainHeight = vertices[i].y;
+				//	maxTerrainHeight = vertices[i].y;
+				//}
+				//else if (vertices[i].y < minTerrainHeight)
+				//	minTerrainHeight = vertices[i].y;
+				//else if (vertices[i].y > maxTerrainHeight)
+				//	maxTerrainHeight = vertices[i].y;
 			}
 		}
 	}
@@ -156,6 +154,10 @@ public class TerrainMeshGenerator : MeshGenerator
 	void UpdateTerrainShaderAddons()
 	{
 		MaterialPropertyBlock mp = new MaterialPropertyBlock();
+
+		mp.SetFloat ("_OffsetX", offsetX * chunkDimention);
+		mp.SetFloat ("_OffsetZ", offsetZ * chunkDimention);
+
 		foreach(var i in GetComponents<ITerrainGeneratorShaderAddon>())
 			i.SetMaterialProperties (mp);
 
