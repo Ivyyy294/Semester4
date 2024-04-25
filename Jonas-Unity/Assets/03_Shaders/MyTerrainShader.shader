@@ -28,6 +28,9 @@ Shader "Custom/MyFirstShader"
 		_BladeWidthRandom ("Blade Width Random", Range (0, 1)) = 0.02
 		_BladeHeightRandom ("Blade Height Random", Range (0, 1)) = 0.3
 		_TessellationUniform ("Tessellation Uniform", Range (1, 64)) = 1
+
+		[Header (Beach)]
+		_BeachColor ("Beach Color", Color) = (0, 0, 1, 1)
 	}
 
 	CGINCLUDE
@@ -48,6 +51,15 @@ Shader "Custom/MyFirstShader"
 			float3 normal : NORMAL;
 			float2 uv : TEXCOORD0;
 		};
+
+		// Simple noise function, sourced from http://answers.unity.com/answers/624136/view.html
+		// Extended discussion on this function can be found at the following link:
+		// https://forum.unity.com/threads/am-i-over-complicating-this-random-function.454887/#post-2949326
+		// Returns a number in the 0...1 range.
+		float rand (float3 co)
+		{
+			return frac (sin (dot (co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
+		}
 	ENDCG
 
 	SubShader{
@@ -66,7 +78,8 @@ Shader "Custom/MyFirstShader"
 				//Name exactly as in Properties
 				float4 _Tint;
 				sampler2D _MainTex;
-
+				float4 _BeachColor;
+				float _WaterLevel;
 				//Tilling and offset
 				//Tilling is scale (xy)
 				//Offset (zw)
@@ -89,7 +102,10 @@ Shader "Custom/MyFirstShader"
 					float3 lightDir = _WorldSpaceLightPos0.xyz;
 					float3 viewDir = normalize (_WorldSpaceCameraPos - i.worldPos);
 					float3 lightColor = _LightColor0.rgb;
-					float3 albedo = tex2D (_MainTex, i.uv) * _Tint;
+
+					bool beach = i.worldPos.y <= _WaterLevel + (1.f * rand (i.worldPos));
+
+					float3 albedo = beach ? _BeachColor : tex2D (_MainTex, i.uv) * _Tint;
 					float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
 					//float3 reflectionDir = reflect (-lightDir, i.normal);
 
@@ -244,15 +260,6 @@ Shader "Custom/MyFirstShader"
 				i.uv = uv;
 				i.normal = UnityObjectToWorldNormal (normal);
 				return i;
-			}
-
-			// Simple noise function, sourced from http://answers.unity.com/answers/624136/view.html
-			// Extended discussion on this function can be found at the following link:
-			// https://forum.unity.com/threads/am-i-over-complicating-this-random-function.454887/#post-2949326
-			// Returns a number in the 0...1 range.
-			float rand (float3 co)
-			{
-				return frac (sin (dot (co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
 			}
 
 			// Construct a rotation matrix that rotates around the provided axis, sourced from:

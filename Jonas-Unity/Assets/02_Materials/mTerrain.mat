@@ -80,7 +80,7 @@ Material:
     - _GlossyReflections: 1
     - _MaxGrassLevel: 25
     - _Metallic: 0
-    - _MinGrassLevel: 12.2
+    - _MinGrassLevel: 12.5
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -97,6 +97,7 @@ Material:
     - _WavesFrequency: 1.68
     - _ZWrite: 1
     m_Colors:
+    - _BeachColor: {r: 0.9811321, g: 0.9646935, b: 0.7080812, a: 1}
     - _BottomColor: {r: 0.058408808, g: 0.38679248, b: 0, a: 1}
     - _Color: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
