@@ -265,6 +265,23 @@ MonoBehaviour:
   Width: 5
   Depth: 5
   ChunkDimention: 50
+  waterProperties:
+    waterColor: {r: 0, g: 0, b: 0, a: 0}
+    waterLevelY: 0
+    waveAmplitude: 0
+    waveSpeed: 0
+    wavesDirection: 0
+  grassProperties:
+    MinGrassLevel: 0
+    MaxGrassLevel: 0
+    TopColor: {r: 0, g: 0, b: 0, a: 0}
+    BottomColor: {r: 0, g: 0, b: 0, a: 0}
+    BladeWidth: 0
+    BladeHeight: 0
+    BendRotationRandom: 0
+    BladeWidthRandom: 0
+    BladeHeightRandom: 0
+    TessellationUniform: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

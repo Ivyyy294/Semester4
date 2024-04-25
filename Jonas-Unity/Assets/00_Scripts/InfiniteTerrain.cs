@@ -2,6 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+class AddonContainer
+{
+	public WaterAddon water;
+	public GrassAddon grass;
+	public RockAddon rock;
+}
+
 public class InfiniteTerrain : MonoBehaviour
 {
 	[SerializeField] GameObject prefab;
@@ -13,9 +20,9 @@ public class InfiniteTerrain : MonoBehaviour
 	[Header ("Addon settings")]
 	[SerializeField] WaterProperties waterProperties;
 	[SerializeField] GrassProperties grassProperties;
+	[SerializeField] RockSettings rockProperties;
 
-	List <WaterAddon> waterAddons = new List<WaterAddon>();
-	List <GrassAddon> grassAddons = new List<GrassAddon>();
+	List <AddonContainer> addons = new List<AddonContainer>();
 
 	bool initDone = false;
 
@@ -38,8 +45,13 @@ public class InfiniteTerrain : MonoBehaviour
 				go.name = "Chunk_" + x + "_" + z;
                 go.transform.localPosition = new Vector3(x * ChunkDimention, 0, z * ChunkDimention);
                 go.GetComponent<TerrainMeshGenerator>().Init(ChunkDimention, x, z);
-				waterAddons.Add (go.GetComponent <WaterAddon>());
-				grassAddons.Add (go.GetComponent<GrassAddon>());
+
+				AddonContainer addon = new AddonContainer();
+				addon.water = go.GetComponent <WaterAddon>();
+				addon.grass = go.GetComponent<GrassAddon>();
+				addon.rock = go.GetComponent<RockAddon>();
+
+				addons.Add (addon);
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -49,17 +61,19 @@ public class InfiniteTerrain : MonoBehaviour
 
 	private void Update()
 	{
-		if (!initDone && waterAddons.Count > 0)
+		if (!initDone && addons.Count > 0)
 		{
-			waterProperties = waterAddons[0].properties;
-			grassProperties = grassAddons[0].properties;
+			waterProperties = addons[0].water.properties;
+			grassProperties = addons[0].grass.properties;
+			rockProperties = addons[0].rock.properties;
 			initDone = true;
 		}
 
-		foreach (var i in waterAddons)
-			i.properties = waterProperties;
-
-		foreach (var i in grassAddons)
-			i.properties = grassProperties;
+		foreach (var i in addons)
+		{
+			i.water.properties = waterProperties;
+			i.grass.properties = grassProperties;
+			i.rock.properties = rockProperties;
+		}
 	}
 }
