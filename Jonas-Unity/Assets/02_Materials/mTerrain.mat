@@ -87,14 +87,18 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Steepness: 0.5
     - _TessellationUniform: 12
     - _TranslucentGain: 0.064
     - _UVSec: 0
     - _WaterLevel: 12
-    - _WaveHeight: 0.07
-    - _WaveSpeed: 1
+    - _WaveCount: 5
+    - _WaveHeight: 1
+    - _WaveSpeed: 0.5
+    - _WaveSteepness: 0.2
     - _WavesDirection: 30
-    - _WavesFrequency: 1.68
+    - _WavesFrequency: -31.85
+    - _WavesLength: 6
     - _ZWrite: 1
     m_Colors:
     - _BeachColor: {r: 0.9811321, g: 0.9646935, b: 0.7080812, a: 1}

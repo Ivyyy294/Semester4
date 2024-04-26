@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.4964131, b: 0.57481605, a: 1}
+  m_IndirectSpecularColor: {r: 0.43749025, g: 0.48531145, b: 0.5655863, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -210,13 +210,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.39713123, y: -0.30997548, z: 0.14454393, w: 0.8516508}
+  m_LocalRotation: {x: 0.45451945, y: 0.54167527, z: -0.45451945, w: 0.54167527}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -40, z: 0}
+  m_LocalEulerAnglesHint: {x: 80, y: 90, z: 0}
 --- !u!1 &917030808
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,7 +268,9 @@ MonoBehaviour:
   waterProperties:
     waterColor: {r: 0, g: 0, b: 0, a: 0}
     waterLevelY: 0
-    waveAmplitude: 0
+    waveCount: 0
+    waveSteepness: 0
+    waveLength: 0
     waveSpeed: 0
     wavesDirection: 0
   grassProperties:

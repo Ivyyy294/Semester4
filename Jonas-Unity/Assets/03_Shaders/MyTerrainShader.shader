@@ -11,10 +11,11 @@ Shader "Custom/MyFirstShader"
 		[Header(Water)]
 		_WaterColor ("Water Color", Color) = (0, 0, 1, 1)
 		_WaterLevel ("Water Level", Float) = 0
-		_WaveHeight ("Water Height", Float) = 1
+		_WaveCount ("Water Count", Int) = 1
+		_WaveSteepness ("Steepness", Range (0, 1)) = 0.5
 		_WaveSpeed ("Water Speed", Float) = 1
 		_WavesDirection ("Water Direction", Float) = 30
-		_WavesFrequency ("Water Frequency", Float) = 1
+		_WavesLength ("Wave Length", Float) = 1
 
 		[Header(Grass)]
 		_MinGrassLevel ("Min Grass Level", Range (0, 50)) = 1
@@ -130,10 +131,11 @@ Shader "Custom/MyFirstShader"
 				//Name exactly as in Properties
 				float4 _WaterColor;
 				float _WaterLevel;
-				float _WaveHeight;
+				int _WaveCount;
+				float _WaveSteepness;
 				float _WaveSpeed;
 				float _WavesDirection;
-				float _WavesFrequency;
+				float _WavesLength;
 				float _OffsetX;
 				float _OffsetZ;
 
@@ -147,36 +149,38 @@ Shader "Custom/MyFirstShader"
 				Interpolators WaveGerstner (float4 p)
 				{
 					p.y = _WaterLevel;
-					float a = _WaveHeight;
-					float w = _WavesFrequency;
+
+					float k = 2 * UNITY_PI / _WavesLength;
 					float x = p.x + _OffsetX;
 					float z = p.z + _OffsetZ;
-
+					float steepness = _WaveSteepness;
 					float3 tangent = float3(1, 0, 0);
 					float3 binormal = float3(0, 0, 1);
 
-					for (int i = 1; i <= 256; ++i)
+					for (int i = 0; i < _WaveCount; ++i)
 					{
+						float c = sqrt (9.8 / k) * _WaveSpeed;
+						float a = steepness / k;
 						float3 direction = GetDirectionVec (_WavesDirection * i * i * i);
-						float f = w * ((x * direction.x + z * direction.z) + _Time.y * _WaveSpeed);
+						float f = k * ((x * direction.x + z * direction.z) + _Time.y * c);
 
 						p.x += direction.x * (a * cos (f));
 						p.z += direction.z * (a * cos (f));
 						p.y += a * sin (f);
 
 						tangent += float3(
-							-direction.x * direction.x * (a * sin (f)),
-							direction.x * (a * cos (f)),
-							-direction.x * direction.y * (a * sin (f))
+							1 - direction.x * direction.x * (_WaveSteepness * sin (f)),
+							direction.x * (_WaveSteepness * cos (f)),
+							-direction.x * direction.y * (_WaveSteepness * sin (f))
 							);
 						binormal += float3(
-							-direction.x * direction.y * (a * sin (f)),
-							direction.y * (a * cos (f)),
-							-direction.y * direction.y * (a * sin (f))
+							-direction.x * direction.y * (_WaveSteepness * sin (f)),
+							direction.y * (_WaveSteepness * cos (f)),
+							1 - direction.y * direction.y * (_WaveSteepness * sin (f))
 							);
 
-						w *= 0.82;
-						a *= 0.82;
+						k *= 1.18;
+						steepness *= 0.82;
 					}
 
 					Interpolators inter;
@@ -209,7 +213,7 @@ Shader "Custom/MyFirstShader"
 					float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
 					float3 reflectionDir = reflect (-lightDir, i.normal);
 
-					return float4 (diffuse, 1) + DotClamped (viewDir, reflectionDir) * 0.5;
+					return float4 (diffuse, 1) + DotClamped (viewDir, reflectionDir) * 1;
 				}
 			ENDCG
 		}
