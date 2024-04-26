@@ -33,7 +33,7 @@ public class InfiniteTerrain : MonoBehaviour
     {
         StartCoroutine(GenerateTerrain());
 
-        Camera.main.transform.position = new Vector3(Width / 2f * ChunkDimention, 50, Depth / 10f * ChunkDimention);
+        Camera.main.transform.position = new Vector3(Width / 2f * ChunkDimention, 25, Depth / 10f * ChunkDimention);
         Camera.main.transform.LookAt(new Vector3(Width / 2f * ChunkDimention, 0, Depth / 2f * ChunkDimention));
     }
 

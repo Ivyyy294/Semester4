@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 4592632922553791532}
   - component: {fileID: 8870401085156142485}
   - component: {fileID: 4783771762386155302}
-  - component: {fileID: 3695597877096603977}
   - component: {fileID: 3586194287198048941}
+  - component: {fileID: 3695597877096603977}
   m_Layer: 0
   m_Name: TerrainMeshGenerator
   m_TagString: Untagged
@@ -150,23 +150,6 @@ MonoBehaviour:
     waveAmplitude: 0
     waveSpeed: 0
     wavesDirection: 0
---- !u!114 &3695597877096603977
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8874321175103049637}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3966528c26a5ce74589db5b3895aafd6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rockPrefab: {fileID: 7088034624560197325, guid: 02323f354a4cb6343a4c4466e3cabdcb, type: 3}
-  properties:
-    levelMinMax: {x: 12, y: 20}
-    angleMax: 45
-    chance: 0.5
 --- !u!114 &3586194287198048941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,3 +167,20 @@ MonoBehaviour:
     levelMinMax: {x: 12, y: 20}
     angleMax: 20
     chance: 0.1
+--- !u!114 &3695597877096603977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8874321175103049637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3966528c26a5ce74589db5b3895aafd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rockPrefab: {fileID: 7088034624560197325, guid: 02323f354a4cb6343a4c4466e3cabdcb, type: 3}
+  properties:
+    levelMinMax: {x: 12, y: 20}
+    angleMax: 45
+    chance: 0.5

@@ -18,43 +18,65 @@ public class RockAddon : MonoBehaviour, ITerrainGeneratorAddon
 	List <GameObject> rockObjList = new List<GameObject>();
 	RockSettings previousSettings = new RockSettings();
 	Mesh previousMesh;
+	int rockIndex = 0;
+
+	public bool Valid (Vector3 pos, Vector3 normal)
+	{
+		float angle = Mathf.Abs (Vector3.Angle(normal, Vector3.up));
+		bool ok = pos.y >= properties.levelMinMax.x && pos.y <= properties.levelMinMax.y && angle <= properties.angleMax && properties.chance > rand (pos);
+		return ok;
+	}
+
+	public void Spawn (Vector3 pos, Vector3 normal)
+	{
+		if (rockIndex < rockObjList.Count)
+		{
+			rockObjList[rockIndex].SetActive (true);
+			rockObjList[rockIndex].transform.localPosition = pos;
+		}
+		else
+		{
+			var obj = Instantiate (rockPrefab, transform);
+			obj.transform.localPosition = pos;
+			obj.transform.up = Random.insideUnitSphere;
+			obj.transform.localScale *= 0.75f + rand (pos);
+			rockObjList.Add (obj);
+		}
+		rockIndex++;
+	}
 
     public void Apply (Mesh mesh)
 	{
 		if (!mesh || !enabled)
 			return;
 
-		int rockIndex = 0;
+		rockIndex = 0;
 
 		//Disable unused grass
 		for (int i = 0; i < rockObjList.Count; ++i)
 			rockObjList[i].SetActive (false);
 
-		for (int i = 0; i < mesh.vertexCount; ++i)
-		{
-			Vector3 v = mesh.vertices[i];
-			float angle = Mathf.Abs (Vector3.Angle(mesh.normals[i], Vector3.up));
-
-			if (v.y >= properties.levelMinMax.x && v.y <= properties.levelMinMax.y && angle <= properties.angleMax && properties.chance > rand (v))
-			{
-				if (rockIndex < rockObjList.Count)
-				{
-					rockObjList[rockIndex].SetActive (true);
-					rockObjList[rockIndex].transform.localPosition = v;
-				}
-				else
-				{
-					var obj = Instantiate (rockPrefab, transform);
-					obj.transform.localPosition = v;
-					obj.transform.up = Random.insideUnitSphere;
-					rockObjList.Add (obj);
-				}
-				rockIndex++;
-			}
-		}
+		StopAllCoroutines();
+		StartCoroutine (ApplyIntern (mesh));
 
 		previousSettings = properties;
 		previousMesh = mesh;
+	}
+
+	private IEnumerator ApplyIntern(Mesh mesh)
+	{
+		for (int i = 0; i < mesh.vertexCount; ++i)
+		{
+			Vector3 v = mesh.vertices[i];
+
+			if (Valid (v, mesh.normals[i]))
+				Spawn (v, mesh.normals[i]);
+
+			if (i % 50 == 0)
+				yield return null;
+		}
+
+		yield return true;
 	}
 
 	private void Update()

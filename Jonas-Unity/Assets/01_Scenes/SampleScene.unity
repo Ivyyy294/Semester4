@@ -282,6 +282,14 @@ MonoBehaviour:
     BladeWidthRandom: 0
     BladeHeightRandom: 0
     TessellationUniform: 0
+  rockProperties:
+    levelMinMax: {x: 0, y: 0}
+    angleMax: 0
+    chance: 0
+  treeProperties:
+    levelMinMax: {x: 0, y: 0}
+    angleMax: 0
+    chance: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

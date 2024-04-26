@@ -18,44 +18,68 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 	List <GameObject> treeObjList = new List<GameObject>();
 	TreeSettings previousSettings = new TreeSettings();
 	Mesh previousMesh;
+	int treeIndex = 0;
 
     public void Apply (Mesh mesh)
 	{
 		if (!mesh || !enabled)
 			return;
-				
+
+		StopAllCoroutines();
+
 		//Disable unused grass
 		for (int i = 0; i < treeObjList.Count; ++i)
 			treeObjList[i].SetActive (false);
 
-		int treeIndex = 0;
+		treeIndex = 0;
 
-		for (int i = 0; i < mesh.vertexCount; ++i)
-		{
-			Vector3 v = mesh.vertices[i];
-			float angle = Mathf.Abs (Vector3.Angle(mesh.normals[i], Vector3.up));
-
-			if (v.y >= properties.levelMinMax.x && v.y <= properties.levelMinMax.y && angle <= properties.angleMax && properties.chance > rand (v))
-			{
-				if (treeIndex < treeObjList.Count)
-				{
-					treeObjList[treeIndex].SetActive (true);
-					treeObjList[treeIndex].transform.localPosition = v;
-					treeObjList[treeIndex].transform.up = Vector3.up;
-				}
-				else
-				{
-					var obj = Instantiate (treePrefab, transform);
-					obj.transform.localPosition = v;
-					obj.transform.up = Vector3.up;
-					treeObjList.Add (obj);
-				}
-				treeIndex++;
-			}
-		}
+		StartCoroutine (ApplyIntern (mesh));
 
 		previousSettings = properties;
 		previousMesh = mesh;
+	}
+
+	private bool Valid (Vector3 pos, Vector3 normal)
+	{
+		float angle = Mathf.Abs (Vector3.Angle(normal, Vector3.up));
+		bool ok = pos.y >= properties.levelMinMax.x && pos.y <= properties.levelMinMax.y && angle <= properties.angleMax && properties.chance > rand (pos);
+		return ok;
+	}
+
+	private void Spawn (Vector3 pos)
+	{
+		if (treeIndex < treeObjList.Count)
+		{
+			treeObjList[treeIndex].SetActive (true);
+			treeObjList[treeIndex].transform.localPosition = pos;
+		}
+		else
+		{
+			var obj = Instantiate (treePrefab, transform);
+			obj.transform.localPosition = pos;
+			obj.transform.localScale *= 0.5f + rand (pos);
+			obj.transform.Rotate (Vector3.up, Random.value * 360f);
+			treeObjList.Add (obj);
+		}
+		treeIndex++;
+	}
+
+	IEnumerator ApplyIntern (Mesh mesh)
+	{
+		for (int i = 0; i < mesh.vertices.Length; ++i)
+		{
+			Vector3 v = mesh.vertices[i];
+
+			if (Valid (v, mesh.normals[i]))
+			{
+				Spawn (v);
+
+				if (i % 8 == 0)
+					yield return null;
+			}
+		}
+
+		yield return true;
 	}
 
 	private void Update()
