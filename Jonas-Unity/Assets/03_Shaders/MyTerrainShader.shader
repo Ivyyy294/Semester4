@@ -11,6 +11,7 @@ Shader "Custom/MyFirstShader"
 		[Header(Water)]
 		_WaterColor ("Water Color", Color) = (0, 0, 1, 1)
 		_WaterLevel ("Water Level", Float) = 0
+		_WaterSmoothness ("Water Smoothness", Range (0, 1)) = 0.5
 		_WaveCount ("Water Count", Int) = 1
 		_WaveSteepness ("Steepness", Range (0, 1)) = 0.5
 		_WaveSpeed ("Water Speed", Float) = 1
@@ -131,6 +132,7 @@ Shader "Custom/MyFirstShader"
 				//Name exactly as in Properties
 				float4 _WaterColor;
 				float _WaterLevel;
+				float _WaterSmoothness;
 				int _WaveCount;
 				float _WaveSteepness;
 				float _WaveSpeed;
@@ -161,6 +163,7 @@ Shader "Custom/MyFirstShader"
 					{
 						float c = sqrt (9.8 / k) * _WaveSpeed;
 						float a = steepness / k;
+
 						float3 direction = GetDirectionVec (_WavesDirection * i * i * i);
 						float f = k * ((x * direction.x + z * direction.z) + _Time.y * c);
 
@@ -169,14 +172,14 @@ Shader "Custom/MyFirstShader"
 						p.y += a * sin (f);
 
 						tangent += float3(
-							1 - direction.x * direction.x * (_WaveSteepness * sin (f)),
-							direction.x * (_WaveSteepness * cos (f)),
-							-direction.x * direction.y * (_WaveSteepness * sin (f))
+							- direction.x * direction.x * (steepness * sin (f)),
+							direction.x * (steepness * cos (f)),
+							-direction.x * direction.y * (steepness * sin (f))
 							);
 						binormal += float3(
-							-direction.x * direction.y * (_WaveSteepness * sin (f)),
-							direction.y * (_WaveSteepness * cos (f)),
-							1 - direction.y * direction.y * (_WaveSteepness * sin (f))
+							-direction.x * direction.y * (steepness * sin (f)),
+							direction.y * (steepness * cos (f)),
+							- direction.y * direction.y * (steepness * sin (f))
 							);
 
 						k *= 1.18;
@@ -195,7 +198,6 @@ Shader "Custom/MyFirstShader"
 					Interpolators i;
 
 					i = WaveGerstner (v.position);
-
 					i.normal = UnityObjectToWorldNormal (i.normal);
 					i.worldPos = mul (unity_ObjectToWorld, i.position);
 					i.position = UnityObjectToClipPos (i.position);
@@ -212,8 +214,9 @@ Shader "Custom/MyFirstShader"
 					float3 albedo = _WaterColor;
 					float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
 					float3 reflectionDir = reflect (-lightDir, i.normal);
-
-					return float4 (diffuse, 1) + DotClamped (viewDir, reflectionDir) * 1;
+					float3 halfVector = normalize (lightDir + viewDir);
+					float3 specular = lightColor * pow (DotClamped (halfVector, i.normal), _WaterSmoothness * 100);
+					return float4 (diffuse + specular, 1);
 				}
 			ENDCG
 		}
