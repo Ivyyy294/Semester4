@@ -17,7 +17,6 @@ public class RockAddon : MonoBehaviour, ITerrainGeneratorAddon
 
 	List <GameObject> rockObjList = new List<GameObject>();
 	RockSettings previousSettings = new RockSettings();
-	Mesh previousMesh;
 	int rockIndex = 0;
 
 	public bool Valid (Vector3 pos, Vector3 normal)
@@ -45,46 +44,22 @@ public class RockAddon : MonoBehaviour, ITerrainGeneratorAddon
 		rockIndex++;
 	}
 
-    public void Apply (Mesh mesh)
+	public bool Dirty()
 	{
-		if (!mesh || !enabled)
-			return;
+		return (properties.levelMinMax != previousSettings.levelMinMax
+			|| properties.angleMax != previousSettings.angleMax
+			|| properties.chance != previousSettings.chance);
+	}
 
+	public void Reset()
+	{
 		rockIndex = 0;
 
 		//Disable unused grass
 		for (int i = 0; i < rockObjList.Count; ++i)
 			rockObjList[i].SetActive (false);
 
-		StopAllCoroutines();
-		StartCoroutine (ApplyIntern (mesh));
-
 		previousSettings = properties;
-		previousMesh = mesh;
-	}
-
-	private IEnumerator ApplyIntern(Mesh mesh)
-	{
-		for (int i = 0; i < mesh.vertexCount; ++i)
-		{
-			Vector3 v = mesh.vertices[i];
-
-			if (Valid (v, mesh.normals[i]))
-				Spawn (v, mesh.normals[i]);
-
-			if (i % 50 == 0)
-				yield return null;
-		}
-
-		yield return true;
-	}
-
-	private void Update()
-	{
-		if (properties.levelMinMax != previousSettings.levelMinMax
-			|| properties.angleMax != previousSettings.angleMax
-			|| properties.chance != previousSettings.chance)
-			Apply(previousMesh);
 	}
 
 	float rand (Vector3 co)

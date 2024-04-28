@@ -4,7 +4,10 @@ using UnityEngine;
 
 interface ITerrainGeneratorAddon
 {
-	public void Apply(Mesh mesh);
+	public void Spawn (Vector3 pos, Vector3 normal);
+	public bool Valid (Vector3 pos, Vector3 normal);
+	public bool Dirty ();
+	public void Reset();
 }
 
 interface ITerrainGeneratorShaderAddon
@@ -78,6 +81,18 @@ public class TerrainMeshGenerator : MeshGenerator
 			UpdateMesh();
 			UpdateTerrainAddons();
 		}
+		else
+		{
+			var addons = GetComponents<ITerrainGeneratorAddon>();
+			for (int i = 0; i < addons.Length; ++i)
+			{
+				if (addons[i].Dirty())
+				{
+					UpdateTerrainAddons();
+					break;
+				}
+			}
+		}
 
 		UpdateTerrainShaderAddons();
 	}
@@ -147,9 +162,43 @@ public class TerrainMeshGenerator : MeshGenerator
 
 	void UpdateTerrainAddons()
 	{
-		foreach(var i in GetComponents<ITerrainGeneratorAddon>())
-			i.Apply (mesh);
+		StopAllCoroutines();
+		StartCoroutine (UpdateTerrainAddonsIntern());
 	}
+
+	IEnumerator UpdateTerrainAddonsIntern()
+	{
+		var addons = GetComponents<ITerrainGeneratorAddon>();
+
+		for (int i = 0; i < addons.Length; ++i)
+			addons[i].Reset();
+
+		yield return new WaitForEndOfFrame();
+
+		float sqrt = Mathf.Sqrt (vertices.Length);
+
+		for (int i = 0; i < mesh.vertices.Length; ++i)
+		{
+			for (int j = 0; j < addons.Length; ++j)
+			{
+				Vector3 pos = mesh.vertices[i];
+				Vector3 normal = mesh.normals[i];
+				ITerrainGeneratorAddon addon = addons[j];
+
+				if (addon.Valid (pos, normal))
+				{
+					addon.Spawn (pos, normal);
+					break;
+				}
+			}
+
+			if (i % sqrt == 0)
+				yield return new WaitForEndOfFrame();
+		}
+
+		yield return true;
+	}
+
 
 	void UpdateTerrainShaderAddons()
 	{

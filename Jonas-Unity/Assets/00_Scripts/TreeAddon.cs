@@ -17,36 +17,16 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 
 	List <GameObject> treeObjList = new List<GameObject>();
 	TreeSettings previousSettings = new TreeSettings();
-	Mesh previousMesh;
 	int treeIndex = 0;
 
-    public void Apply (Mesh mesh)
-	{
-		if (!mesh || !enabled)
-			return;
-
-		StopAllCoroutines();
-
-		//Disable unused grass
-		for (int i = 0; i < treeObjList.Count; ++i)
-			treeObjList[i].SetActive (false);
-
-		treeIndex = 0;
-
-		StartCoroutine (ApplyIntern (mesh));
-
-		previousSettings = properties;
-		previousMesh = mesh;
-	}
-
-	private bool Valid (Vector3 pos, Vector3 normal)
+	public bool Valid (Vector3 pos, Vector3 normal)
 	{
 		float angle = Mathf.Abs (Vector3.Angle(normal, Vector3.up));
 		bool ok = pos.y >= properties.levelMinMax.x && pos.y <= properties.levelMinMax.y && angle <= properties.angleMax && properties.chance > rand (pos);
 		return ok;
 	}
 
-	private void Spawn (Vector3 pos)
+	public void Spawn (Vector3 pos, Vector3 normal)
 	{
 		if (treeIndex < treeObjList.Count)
 		{
@@ -64,30 +44,22 @@ class TreeAddon : MonoBehaviour, ITerrainGeneratorAddon
 		treeIndex++;
 	}
 
-	IEnumerator ApplyIntern (Mesh mesh)
+	public bool Dirty()
 	{
-		for (int i = 0; i < mesh.vertices.Length; ++i)
-		{
-			Vector3 v = mesh.vertices[i];
-
-			if (Valid (v, mesh.normals[i]))
-			{
-				Spawn (v);
-
-				if (i % 8 == 0)
-					yield return null;
-			}
-		}
-
-		yield return true;
+		return (properties.levelMinMax != previousSettings.levelMinMax
+			|| properties.angleMax != previousSettings.angleMax
+			|| properties.chance != previousSettings.chance);
 	}
 
-	private void Update()
+	public void Reset()
 	{
-		if (properties.levelMinMax != previousSettings.levelMinMax
-			|| properties.angleMax != previousSettings.angleMax
-			|| properties.chance != previousSettings.chance)
-			Apply(previousMesh);
+		treeIndex = 0;
+
+		//Disable unused grass
+		for (int i = 0; i < treeObjList.Count; ++i)
+			treeObjList[i].SetActive (false);
+
+		previousSettings = properties;
 	}
 
 	float rand (Vector3 co)
