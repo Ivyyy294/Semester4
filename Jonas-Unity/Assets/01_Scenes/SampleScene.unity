@@ -268,6 +268,7 @@ MonoBehaviour:
   waterProperties:
     waterColor: {r: 0, g: 0, b: 0, a: 0}
     waterLevelY: 0
+    waterSmoothness: 0
     waveCount: 0
     waveSteepness: 0
     waveLength: 0

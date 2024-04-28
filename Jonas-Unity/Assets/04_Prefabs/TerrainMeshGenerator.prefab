@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 4783771762386155302}
   - component: {fileID: 3586194287198048941}
   - component: {fileID: 3695597877096603977}
+  - component: {fileID: 1830785586059202812}
   m_Layer: 0
   m_Name: TerrainMeshGenerator
   m_TagString: Untagged
@@ -147,7 +148,10 @@ MonoBehaviour:
   properties:
     waterColor: {r: 0, g: 0, b: 0, a: 0}
     waterLevelY: 0
-    waveAmplitude: 0
+    waterSmoothness: 0
+    waveCount: 0
+    waveSteepness: 0
+    waveLength: 0
     waveSpeed: 0
     wavesDirection: 0
 --- !u!114 &3586194287198048941
@@ -184,3 +188,22 @@ MonoBehaviour:
     levelMinMax: {x: 12, y: 20}
     angleMax: 45
     chance: 0.5
+--- !u!114 &1830785586059202812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8874321175103049637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e328b97484c99ff4496837e3b2ecc0cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  plantPrefab:
+  - {fileID: 2940557043030206389, guid: bfe27f8cafcf4ee48b93d84baa8389f3, type: 3}
+  - {fileID: 1196787590941772358, guid: 4a37d39bea4517644b027dd51ce68252, type: 3}
+  properties:
+    levelMinMax: {x: 13, y: 20}
+    angleMax: 45
+    chance: 0.75
