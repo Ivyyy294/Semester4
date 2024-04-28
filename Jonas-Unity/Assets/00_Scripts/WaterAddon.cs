@@ -6,6 +6,8 @@ using UnityEngine;
 public struct WaterProperties
 {
 	public Color waterColor;
+	[Range(0, 1)] public float waterPeakIntensity;
+	[Range(0, 1)] public float waterPeakArea;
 	public float waterLevelY;
 	[Range(0, 1)] public float waterSmoothness;
 	[Min (1)] public int waveCount;
@@ -22,6 +24,8 @@ public class WaterAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
 	public void LoadDefaultValues(Material material)
 	{		
 		properties.waterColor = material.GetColor ("_WaterColor");
+		properties.waterPeakIntensity = material.GetFloat ("_WaterPeakIntensity");
+		properties.waterPeakArea = material.GetFloat ("_WaterPeakArea");
 		properties.waterLevelY = material.GetFloat ("_WaterLevel");
 		properties.waterSmoothness = material.GetFloat ("_WaterSmoothness");
 		properties.waveCount = material.GetInt ("_WaveCount");
@@ -34,6 +38,10 @@ public class WaterAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
 	public void SetMaterialProperties (MaterialPropertyBlock propertyBlock)
 	{
 		propertyBlock.SetColor ("_WaterColor", properties.waterColor);
+
+		propertyBlock.SetFloat ("_WaterPeakIntensity", properties.waterPeakIntensity);
+		propertyBlock.SetFloat ("_WaterPeakArea", properties.waterPeakArea);
+
         propertyBlock.SetFloat ("_WaterLevel", properties.waterLevelY);
 		propertyBlock.SetFloat ("_WaterSmoothness", properties.waterSmoothness);
 		propertyBlock.SetInt ("_WaveCount", properties.waveCount);

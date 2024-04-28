@@ -92,6 +92,8 @@ Material:
     - _TranslucentGain: 0.064
     - _UVSec: 0
     - _WaterLevel: 12
+    - _WaterPeakArea: 0.4
+    - _WaterPeakIntensity: 0.3
     - _WaterSmoothness: 0.1
     - _WaveCount: 5
     - _WaveHeight: 1

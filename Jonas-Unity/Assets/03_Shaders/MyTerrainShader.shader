@@ -10,6 +10,8 @@ Shader "Custom/MyFirstShader"
 
 		[Header(Water)]
 		_WaterColor ("Water Color", Color) = (0, 0, 1, 1)
+		_WaterPeakIntensity ("Water Peak Intensity", Range (0, 1)) = 0.5
+		_WaterPeakArea ("Water Peak Area", Range (0, 1)) = 0.95
 		_WaterLevel ("Water Level", Float) = 0
 		_WaterSmoothness ("Water Smoothness", Range (0, 1)) = 0.5
 		_WaveCount ("Water Count", Int) = 1
@@ -131,6 +133,8 @@ Shader "Custom/MyFirstShader"
 				//Variables
 				//Name exactly as in Properties
 				float4 _WaterColor;
+				float _WaterPeakArea;
+				float _WaterPeakIntensity;
 				float _WaterLevel;
 				float _WaterSmoothness;
 				int _WaveCount;
@@ -205,13 +209,23 @@ Shader "Custom/MyFirstShader"
 					return i;
 				}
 
+				float3 GetWaterColor (float3 pos)
+				{
+					float threshold = _WaterLevel + _WaveSteepness / (2 * UNITY_PI / _WavesLength); // _WaterLevel + _WaveSteepness;
+					threshold *= 1 - (_WaterPeakArea / 10);
+
+					float3 peakColor = (float3(1, 1, 1) * (pos.y - threshold) * _WaterPeakIntensity);
+
+					return _WaterColor + peakColor;
+				}
+
 				float4 MyFragmentProgram (Interpolators i) : SV_TARGET
 				{
 					i.normal = normalize (i.normal);
 					float3 lightDir = _WorldSpaceLightPos0.xyz;
 					float3 viewDir = normalize (_WorldSpaceCameraPos - i.worldPos);
 					float3 lightColor = _LightColor0.rgb;
-					float3 albedo = _WaterColor;
+					float3 albedo = GetWaterColor(i.worldPos);
 					float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
 					float3 reflectionDir = reflect (-lightDir, i.normal);
 					float3 halfVector = normalize (lightDir + viewDir);
