@@ -5,11 +5,16 @@ using UnityEngine;
 [System.Serializable]
 public struct WaterProperties
 {
+	[Header ("Water appearance")]
 	public Color waterColor;
+	public Color waterPeakColor;
+	public Color waterFoamColor;
+	[Range(0, 1)] public float waterSmoothness;
 	[Range(0, 1)] public float waterPeakIntensity;
 	[Range(0, 1)] public float waterPeakArea;
+
+	[Header ("Water settings")]
 	public float waterLevelY;
-	[Range(0, 1)] public float waterSmoothness;
 	[Min (1)] public int waveCount;
 	[Range(0, 1)] public float waveSteepness;
 	public float waveLength;
@@ -22,8 +27,10 @@ public class WaterAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
 	public WaterProperties properties;
 
 	public void LoadDefaultValues(Material material)
-	{		
+	{
 		properties.waterColor = material.GetColor ("_WaterColor");
+		properties.waterPeakColor = material.GetColor ("_WaterPeakColor");
+		properties.waterFoamColor = material.GetColor ("_WaterFoamColor");
 		properties.waterPeakIntensity = material.GetFloat ("_WaterPeakIntensity");
 		properties.waterPeakArea = material.GetFloat ("_WaterPeakArea");
 		properties.waterLevelY = material.GetFloat ("_WaterLevel");
@@ -38,6 +45,8 @@ public class WaterAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
 	public void SetMaterialProperties (MaterialPropertyBlock propertyBlock)
 	{
 		propertyBlock.SetColor ("_WaterColor", properties.waterColor);
+		propertyBlock.SetColor ("_WaterPeakColor", properties.waterPeakColor);
+		propertyBlock.SetColor ("_WaterFoamColor", properties.waterFoamColor);
 
 		propertyBlock.SetFloat ("_WaterPeakIntensity", properties.waterPeakIntensity);
 		propertyBlock.SetFloat ("_WaterPeakArea", properties.waterPeakArea);

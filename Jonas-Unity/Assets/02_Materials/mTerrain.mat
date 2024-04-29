@@ -93,8 +93,8 @@ Material:
     - _UVSec: 0
     - _WaterLevel: 12
     - _WaterPeakArea: 0.4
-    - _WaterPeakIntensity: 0.3
-    - _WaterSmoothness: 0.1
+    - _WaterPeakIntensity: 0.6
+    - _WaterSmoothness: 0.9
     - _WaveCount: 5
     - _WaveHeight: 1
     - _WaveSpeed: 0.5
@@ -111,4 +111,6 @@ Material:
     - _Tint: {r: 1, g: 1, b: 1, a: 1}
     - _TopColor: {r: 0.4216978, g: 0.8301887, b: 0.14489143, a: 0.9647059}
     - _WaterColor: {r: 0, g: 0.49019623, b: 1, a: 1}
+    - _WaterFoamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _WaterPeakColor: {r: 0, g: 1, b: 0.99256873, a: 1}
   m_BuildTextureStacks: []
