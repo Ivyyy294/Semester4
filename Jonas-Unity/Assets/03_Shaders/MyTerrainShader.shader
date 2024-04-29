@@ -370,7 +370,7 @@ Shader "Custom/MyFirstShader"
 
 				//Peak color
 				//color += (white * (pos.y - threshold) * _WaterPeakIntensity);
-				color = lerp (color, _WaterPeakColor, (pos.y - threshold) * _WaterPeakIntensity);
+				color = lerp (color, _WaterPeakColor, saturate((pos.y - threshold) * _WaterPeakIntensity));
 
 				//Shor Color
 				color = lerp (color, _WaterFoamColor, 1 - GetDepthFactor (pos, y));
