@@ -64,9 +64,13 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _WindDistortionMap:
+        m_Texture: {fileID: 2800000, guid: 85586dab99a69854abb9797ab67f53e0, type: 3}
+        m_Scale: {x: 0.01, y: 0.01}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BendRotationRandom: 0.4
+    - _BendRotationRandom: 0.5
     - _BladeHeight: 0.1
     - _BladeHeightRandom: 1
     - _BladeWidth: 0.1
@@ -102,6 +106,7 @@ Material:
     - _WavesDirection: 30
     - _WavesFrequency: -31.85
     - _WavesLength: 6
+    - _WindStrength: 0.5
     - _ZWrite: 1
     m_Colors:
     - _BeachColor: {r: 0.9811321, g: 0.9646935, b: 0.7080812, a: 1}
@@ -113,4 +118,5 @@ Material:
     - _WaterColor: {r: 0, g: 0.49019623, b: 1, a: 1}
     - _WaterFoamColor: {r: 1, g: 1, b: 1, a: 1}
     - _WaterPeakColor: {r: 0, g: 1, b: 0.99256873, a: 1}
+    - _WindFrequency: {r: 0.015, g: 0.015, b: 0, a: 0}
   m_BuildTextureStacks: []

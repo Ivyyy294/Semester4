@@ -12,6 +12,7 @@ Shader "Custom/MyFirstShader"
 		_WaterColor ("Water Color", Color) = (0, 0, 1, 1)
 		_WaterPeakColor ("Water Peak Color", Color) = (0, 0, 1, 1)
 		_WaterFoamColor ("Water Foam Color", Color) = (0, 0, 1, 1)
+		_BeachColor ("Beach Color", Color) = (0, 0, 1, 1)
 		_WaterPeakIntensity ("Water Peak Intensity", Range (0, 1)) = 0.5
 		_WaterPeakArea ("Water Peak Area", Range (0, 1)) = 0.95
 		_WaterLevel ("Water Level", Float) = 0
@@ -35,8 +36,10 @@ Shader "Custom/MyFirstShader"
 		_BladeHeightRandom ("Blade Height Random", Range (0, 1)) = 0.3
 		_TessellationUniform ("Tessellation Uniform", Range (1, 64)) = 1
 
-		[Header (Beach)]
-		_BeachColor ("Beach Color", Color) = (0, 0, 1, 1)
+		[Header (Wind)]
+		_WindDistortionMap ("Wind Distortion Map", 2D) = "white" {}
+		_WindFrequency ("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
+		_WindStrength ("Wind Strength", Float) = 1
 	}
 
 	CGINCLUDE
@@ -116,9 +119,8 @@ Shader "Custom/MyFirstShader"
 
 					float3 albedo = beach ? _BeachColor : tex2D (_MainTex, i.uv) * _Tint;
 					float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
-					//float3 reflectionDir = reflect (-lightDir, i.normal);
 
-					return float4 (diffuse, 1); // +DotClamped (viewDir, reflectionDir);
+					return float4 (diffuse, 1);
 				}
 
 			ENDCG
@@ -154,6 +156,12 @@ Shader "Custom/MyFirstShader"
 			float _BladeWidthRandom;
 			float _MinGrassLevel;
 			float _MaxGrassLevel;
+
+			//Wind
+			sampler2D _WindDistortionMap;
+			float4 _WindDistortionMap_ST;
+			float2 _WindFrequency;
+			float _WindStrength;
 
 			struct geometryOutput
 			{
@@ -192,6 +200,20 @@ Shader "Custom/MyFirstShader"
 					);
 			}
 
+			float3x3 GetWindRotation (float3 pos)
+			{
+				//Callculate uv
+				float2 uv = pos.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
+
+				//Get value from distortion map and scale to -1 - 1
+				float2 windSample = (tex2Dlod (_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
+				float3 wind = normalize (float3(windSample.x, windSample.y, 0));
+
+				//Calculate rotation matrix
+				float3x3 windRotation = AngleAxis3x3 (UNITY_PI * windSample, wind);
+				return windRotation;
+			}
+
 			//Shader
 			[maxvertexcount (6)]
 			void geo (triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<Interpolators> triStream)
@@ -205,6 +227,7 @@ Shader "Custom/MyFirstShader"
 				float height = (rand (pos.zyx) * _BladeHeightRandom) + _BladeHeight;
 				float width = ((rand (pos.xzy)* _BladeWidthRandom) + _BladeWidth) * 0.5f;
 
+
 				//Local to tangent space matrix
 				float3 vNormal = IN[0].normal;
 				float4 vTangent = IN[0].tangent;
@@ -216,6 +239,8 @@ Shader "Custom/MyFirstShader"
 					vTangent.z, vNormal.z, vBinormal.z
 					);
 
+				float3x3 windRotationMatrix = GetWindRotation (pos);
+
 				//Random rotation around y-axis
 				float3x3 facingRotationMatrix = AngleAxis3x3 (rand (pos) * UNITY_TWO_PI, float3(0, 1, 0));
 
@@ -223,16 +248,17 @@ Shader "Custom/MyFirstShader"
 				float3x3 bendRotationMatrix = AngleAxis3x3 (rand (pos.zzx) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
 				
 				//Calculate tranformation matrix
-				float3x3 transformationMatrix = mul (mul (tangentToLocal, facingRotationMatrix), bendRotationMatrix);
+				float3x3 transformationMatrix = mul (mul (mul (tangentToLocal, windRotationMatrix), facingRotationMatrix), bendRotationMatrix);
+				float3x3 transformationMatrixBase = mul (mul (tangentToLocal, facingRotationMatrix), bendRotationMatrix);
 
 				//Front Face
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0), vNormal));
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(-width, 0, 0)), float2(0, 0), vNormal));
 				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1), vNormal));
 
 				//Back Face
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(-width, 0, 0)), float2(0, 0), vNormal));
-				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(-width, 0, 0)), float2(0, 0), vNormal));
+				triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(width, 0, 0)), float2(0, 0), vNormal));
 				triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1), vNormal));
 			}
 
@@ -345,23 +371,6 @@ Shader "Custom/MyFirstShader"
 				return i;
 			}
 
-			float GetDepthFactor (float3 pos, float y)
-			{
-				float threshold = 1.f;
-				float depth = pos.y - y;
-
-				if (depth <= threshold)
-				{
-					float x = depth / threshold;
-					//float f = 1 - pow (1 - (x), 3);
-					//float f = x * x * x;
-					float f = 1 - pow (1 - x, 3);
-					return (f);
-				}
-
-				return 1;
-			}
-
 			float3 GetWaterColor (float3 pos, float y)
 			{
 				float3 color = _WaterColor;
@@ -369,11 +378,7 @@ Shader "Custom/MyFirstShader"
 				threshold *= 1 - (_WaterPeakArea / 10);
 
 				//Peak color
-				//color += (white * (pos.y - threshold) * _WaterPeakIntensity);
 				color = lerp (color, _WaterPeakColor, saturate((pos.y - threshold) * _WaterPeakIntensity));
-
-				//Shor Color
-				color = lerp (color, _WaterFoamColor, 1 - GetDepthFactor (pos, y));
 
 				return color;
 			}
@@ -396,6 +401,133 @@ Shader "Custom/MyFirstShader"
 				return float4 (diffuse + specular, 0.9);
 			}
 		ENDCG
+		}
+		//Render Foam
+		Pass{
+			Tags {
+				"LightMode" = "ForwardBase"
+				"Queue" = "Transparent"
+			}
+			Blend SrcAlpha OneMinusSrcAlpha
+			ZWrite Off
+			CGPROGRAM
+				#pragma vertex MyVertexProgram
+			//coloring individual pixels that lie inside the mesh's triangles.
+			#pragma fragment MyFragmentProgram
+
+			//Variables
+			//Name exactly as in Properties
+			float4 _WaterFoamColor;
+			float _WaterLevel;
+			int _WaveCount;
+			float _WaterSmoothness;
+			float _WaveSteepness;
+			float _WaveSpeed;
+			float _WavesDirection;
+			float _WavesLength;
+			float _OffsetX;
+			float _OffsetZ;
+
+			//Functions
+			float3 GetDirectionVec (float angle)
+			{
+				const float Deg2Rad = PI / 180.f;
+				return float3(cos (angle * Deg2Rad), 0.f, sin (angle * Deg2Rad));
+			}
+
+			Interpolators WaveGerstner (float4 p)
+			{
+				p.y = _WaterLevel;
+
+				float k = 2 * UNITY_PI / _WavesLength;
+				float x = p.x + _OffsetX;
+				float z = p.z + _OffsetZ;
+				float steepness = _WaveSteepness;
+				float3 tangent = float3(1, 0, 0);
+				float3 binormal = float3(0, 0, 1);
+
+				for (int i = 0; i < _WaveCount; ++i)
+				{
+					float c = sqrt (9.8 / k) * _WaveSpeed;
+					float a = steepness / k;
+
+					float3 direction = GetDirectionVec (_WavesDirection * i * i * i);
+					float f = k * ((x * direction.x + z * direction.z) + _Time.y * c);
+
+					p.x += direction.x * (a * cos (f));
+					p.z += direction.z * (a * cos (f));
+					p.y += a * sin (f);
+
+					tangent += float3(
+						-direction.x * direction.x * (steepness * sin (f)),
+						direction.x * (steepness * cos (f)),
+						-direction.x * direction.y * (steepness * sin (f))
+						);
+					binormal += float3(
+						-direction.x * direction.y * (steepness * sin (f)),
+						direction.y * (steepness * cos (f)),
+						-direction.y * direction.y * (steepness * sin (f))
+						);
+
+					k *= 1.18;
+					steepness *= 0.82;
+				}
+
+				Interpolators inter;
+				inter.position = p;
+				inter.normal = normalize (cross (binormal, tangent));
+
+				return inter;
+			}
+
+			Interpolators MyVertexProgram (VertexData v)
+			{
+				Interpolators i;
+
+				i = WaveGerstner (v.position);
+				i.normal = UnityObjectToWorldNormal (i.normal);
+				i.worldPos = mul (unity_ObjectToWorld, i.position);
+				i.position = UnityObjectToClipPos (i.position);
+				i.y = v.position.y;
+				return i;
+			}
+
+			float GetDepthFactor (float3 pos, float y)
+			{
+				float threshold = 2.5f;
+				float depth = pos.y - y;
+
+				if (pos.y > _WaterLevel)
+					depth += pos.y - _WaterLevel;
+
+				if (depth <= threshold)
+				{
+					float x = depth / threshold;
+					float f = 1 - pow (1 - x, 3);
+					return (f);
+				}
+
+				return 1;
+			}
+
+			float4 MyFragmentProgram (Interpolators i) : SV_TARGET
+			{
+				float alpha = 1 - GetDepthFactor (i.worldPos, i.y);
+				
+				//Discard pixel with zero alpha
+				if (alpha <= 0.f)
+					discard;
+
+				i.normal = normalize (i.normal);
+				float3 lightDir = _WorldSpaceLightPos0.xyz;
+				float3 viewDir = normalize (_WorldSpaceCameraPos - i.worldPos);
+				float3 lightColor = _LightColor0.rgb;
+				float3 albedo = _WaterFoamColor;
+				float3 diffuse = albedo * lightColor * DotClamped (lightDir, i.normal);
+
+				return float4 (diffuse, alpha);
+			}
+			ENDCG
 		}
 	}
 }

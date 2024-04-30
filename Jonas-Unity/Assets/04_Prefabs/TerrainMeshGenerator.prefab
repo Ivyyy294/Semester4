@@ -147,8 +147,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   properties:
     waterColor: {r: 0, g: 0, b: 0, a: 0}
-    waterLevelY: 0
+    waterPeakColor: {r: 0, g: 0, b: 0, a: 0}
+    waterFoamColor: {r: 0, g: 0, b: 0, a: 0}
     waterSmoothness: 0
+    waterPeakIntensity: 0
+    waterPeakArea: 0
+    waterLevelY: 0
     waveCount: 0
     waveSteepness: 0
     waveLength: 0
