@@ -5,20 +5,48 @@ using UnityEngine;
 public class Planet : MonoBehaviour
 {
 	[Range (2, 256)]
-	public int m_resolution;
+	public int m_resolution = 2;
+
+	public PlanetShapeSetting m_shapeSetting;
+	public PlanetColorSetting m_colorSetting;
+
+	[HideInInspector]
+	public bool shapeSettingsFoldout;
+	[HideInInspector]
+	public bool colorSettingsFoldout;
+
+	PlanetShapeGenerator m_shapeGenerator;
 
 	[SerializeField, HideInInspector]
 	MeshFilter[] m_meshFilters;
 	PlanetTerrainFace[] m_planetFaces;
 
-	private void OnValidate()
+	//Public Methods
+
+	public void OnShapeSettingsUpdated()
 	{
 		Init();
 		GenerateMesh();
 	}
+	
+	public void OnColorSettingsUpdated()
+	{
+		Init();
+		GenerateColors();
+	}
 
+	public void GeneratePlanet()
+	{
+		Init();
+		GenerateMesh();
+		GenerateColors();
+	}
+
+	//Private Methods
 	private void Init()
 	{
+		m_shapeGenerator = new PlanetShapeGenerator (m_shapeSetting);
+
 		if (m_meshFilters == null || m_meshFilters.Length == 0)
 			m_meshFilters = new MeshFilter[6];
 		
@@ -38,7 +66,7 @@ public class Planet : MonoBehaviour
 				m_meshFilters[i].sharedMesh = new Mesh();
 			}
 				
-			m_planetFaces[i] = new PlanetTerrainFace (m_meshFilters[i].sharedMesh, m_resolution, directions[i]);
+			m_planetFaces[i] = new PlanetTerrainFace (m_shapeGenerator, m_meshFilters[i].sharedMesh, m_resolution, directions[i]);
 		}
 	}
 
@@ -46,5 +74,11 @@ public class Planet : MonoBehaviour
 	{
 		foreach (PlanetTerrainFace face in m_planetFaces)
 			face.ConstructMesh();
+	}
+
+	void GenerateColors()
+	{
+		foreach (MeshFilter m in m_meshFilters)
+			m.GetComponent<MeshRenderer>().sharedMaterial.color = m_colorSetting.color;
 	}
 }

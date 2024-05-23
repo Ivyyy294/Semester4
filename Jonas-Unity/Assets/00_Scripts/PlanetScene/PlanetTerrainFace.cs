@@ -9,12 +9,14 @@ public class PlanetTerrainFace
 	Vector3 m_localUp;
 	Vector3 m_axisA;
 	Vector3 m_axisB;
+	PlanetShapeGenerator m_shapeGenerator;
 
-	public PlanetTerrainFace (Mesh mesh, int resolution, Vector3 localUp)
+	public PlanetTerrainFace (PlanetShapeGenerator shapeGenerator, Mesh mesh, int resolution, Vector3 localUp)
 	{
 		m_mesh = mesh;
 		m_resolution = resolution;
 		m_localUp = localUp;
+		m_shapeGenerator = shapeGenerator;
 
 		m_axisA = new Vector3 (localUp.y, localUp.z, localUp.x);
 		m_axisB = Vector3.Cross (localUp, m_axisA);
@@ -37,7 +39,7 @@ public class PlanetTerrainFace
 				Vector3 pointOnUnitCubeAxisB = (percent.y - 0.5f) * 2 * m_axisB;
 				Vector3 pointOnUnitCube = m_localUp + pointOnUnitCubeAxisA + pointOnUnitCubeAxisB;
 				Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-				vertices[i] = pointOnUnitSphere;
+				vertices[i] = m_shapeGenerator.CalculatePointOnPlanet (pointOnUnitSphere);
 
 				if (x != m_resolution -1 && y != m_resolution -1)
 				{
