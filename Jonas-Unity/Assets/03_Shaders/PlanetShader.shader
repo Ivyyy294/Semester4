@@ -109,21 +109,24 @@ Shader "Custom/PlanetShader"
 			ENDCG
 		}
 
-		////Render Water
-		//Pass{
-		//	Tags {
-		//		"LightMode" = "ForwardBase"
-		//		"RenderType" = "Opaque"
-		//	}
-		//	CGPROGRAM
-		//	#pragma vertex WaterVertexProgram
-		//	#pragma fragment WaterFragmentProgram
+		//Render Water
+		Pass
+		{
+			Tags 
+			{
+				"LightMode" = "ForwardBase"
+				"RenderType" = "Opaque"
+			}
+			CGPROGRAM
+			#pragma vertex PlanetWaterVertexProgram
+			#pragma fragment PlanetWaterFragmentProgram
 
-		//	#include "Water.cginc"
-		//ENDCG
-		//}
+			#include "Water.cginc"
+			ENDCG
+		}
 		////Render Foam
-		//Pass{
+		//Pass
+		//{
 		//	Tags {
 		//		"LightMode" = "ForwardBase"
 		//		"Queue" = "Transparent"
@@ -131,13 +134,13 @@ Shader "Custom/PlanetShader"
 		//	Blend SrcAlpha OneMinusSrcAlpha
 		//	ZWrite Off
 		//	CGPROGRAM
-		//	#pragma vertex FoamVertexProgram
-		////coloring individual pixels that lie inside the mesh's triangles.
-		//#pragma fragment FoamFragmentProgram
+		//	#pragma vertex PlanetFoamVertexProgram
+		//	//coloring individual pixels that lie inside the mesh's triangles.
+		//	#pragma fragment PlanetFoamFragmentProgram
 
-		//#include "Water.cginc"
+		//	#include "Water.cginc"
 
-		//ENDCG
+		//	ENDCG
 		//}
 	}
 }

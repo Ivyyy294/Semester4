@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab1d18629bffbb440adbcac32c83c4fc, type: 3}
   m_Name: Planet1_Grass
   m_EditorClassIdentifier: 
-  m_minGrassLevel: 106
+  m_minGrassLevel: 105.5
   m_maxGrassLevel: 813
   m_topColor: {r: 0.42147446, g: 1, b: 0, a: 0}
   m_bottomColor: {r: 0.10848112, g: 0.3018868, b: 0.024207907, a: 0}
-  m_bladeWidth: 0.914
-  m_bladeHeight: 1
+  m_bladeWidth: 0.404
+  m_bladeHeight: 0.01
   m_bendRotationRandom: 0.294
   m_bladeWidthRandom: 0.05
   m_bladeHeightRandom: 1
-  m_tessellationUniform: 10
+  m_tessellationUniform: 3

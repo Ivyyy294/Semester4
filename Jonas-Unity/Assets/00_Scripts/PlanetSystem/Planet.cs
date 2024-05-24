@@ -10,6 +10,7 @@ public class Planet : MonoBehaviour
 	public PlanetShapeSetting m_shapeSetting;
 	public PlanetColorSetting m_colorSetting;
 	public PlanetGrassSetting m_grassSetting;
+	public PlanetWaterSetting m_waterSetting;
 
 	[HideInInspector]
 	public bool shapeSettingsFoldout;
@@ -17,6 +18,8 @@ public class Planet : MonoBehaviour
 	public bool colorSettingsFoldout;
 	[HideInInspector]
 	public bool grassSettingsFoldout;
+	[HideInInspector]
+	public bool waterSettingsFoldout;
 
 	PlanetShapeGenerator m_shapeGenerator;
 
@@ -89,8 +92,7 @@ public class Planet : MonoBehaviour
 		MaterialPropertyBlock mp = new MaterialPropertyBlock();
 		m_colorSetting.SetMaterialProperties (mp);
 		m_grassSetting.SetMaterialProperties (mp);
-
-		mp.SetFloat ("_WaterLevel", m_shapeSetting.m_radius * 1.05f);
+		m_waterSetting.SetMaterialProperties (mp);
 
 		foreach (MeshFilter m in m_meshFilters)
 			m.GetComponent<MeshRenderer>().SetPropertyBlock(mp);
