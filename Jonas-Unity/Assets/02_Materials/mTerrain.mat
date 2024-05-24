@@ -84,7 +84,7 @@ Material:
     - _GlossyReflections: 1
     - _MaxGrassLevel: 25
     - _Metallic: 0
-    - _MinGrassLevel: 0.4
+    - _MinGrassLevel: 12.5
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -95,7 +95,7 @@ Material:
     - _TessellationUniform: 8
     - _TranslucentGain: 0.064
     - _UVSec: 0
-    - _WaterLevel: 12.5
+    - _WaterLevel: 12
     - _WaterPeakArea: 0.4
     - _WaterPeakIntensity: 0.6
     - _WaterSmoothness: 0.9

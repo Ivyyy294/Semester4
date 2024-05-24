@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb58a18dd70ac8d4f952a4a770292123, type: 3}
   m_Name: Planet1_Color
   m_EditorClassIdentifier: 
-  color: {r: 1, g: 0, b: 0.1319251, a: 0}
+  m_beachColor: {r: 0.98039216, g: 0.9647059, b: 0.70980394, a: 0}
+  m_planetTexture: {fileID: 2800000, guid: 4d083bea72b7c064aabf50c55fee9028, type: 3}

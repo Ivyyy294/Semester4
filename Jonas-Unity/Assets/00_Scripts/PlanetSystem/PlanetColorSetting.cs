@@ -3,7 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu()]
-public class PlanetColorSetting : ScriptableObject
+public class PlanetColorSetting : ScriptableObject, IShaderSetting
 {
-    public Color color;
+    public Color m_beachColor;
+	public Texture2D m_planetTexture;
+
+	public void SetMaterialProperties(MaterialPropertyBlock propertyBlock)
+	{
+		propertyBlock.SetColor("_BeachColor", m_beachColor);
+		propertyBlock.SetTexture("_MainTex", m_planetTexture);
+	}
 }

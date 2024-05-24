@@ -9,6 +9,7 @@ public class PlanetEditor : Editor
     Planet planet;
 	Editor shapeEditor;
 	Editor colorEditor;
+	Editor grassEditor;
 
 	public override void OnInspectorGUI()
 	{
@@ -21,7 +22,8 @@ public class PlanetEditor : Editor
 		}
 		
 		DrawSettingsEditor (planet.m_shapeSetting, planet.OnShapeSettingsUpdated, ref planet.shapeSettingsFoldout, ref shapeEditor);
-		DrawSettingsEditor (planet.m_colorSetting, planet.OnColorSettingsUpdated, ref planet.colorSettingsFoldout, ref colorEditor);
+		DrawSettingsEditor (planet.m_colorSetting, planet.OnShaderSettingsUpdated, ref planet.colorSettingsFoldout, ref colorEditor);
+		DrawSettingsEditor (planet.m_grassSetting, planet.OnShaderSettingsUpdated, ref planet.grassSettingsFoldout, ref grassEditor);
 	}
 
 	void DrawSettingsEditor (Object settings, System.Action onSettingsUpdated, ref bool foldout, ref Editor editor)

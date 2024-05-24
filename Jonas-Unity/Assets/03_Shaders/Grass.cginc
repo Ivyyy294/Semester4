@@ -131,6 +131,55 @@ void GrassGeoProgramm (triangle vertexOutput IN[3] : SV_POSITION, inout Triangle
 	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1), vNormal));
 }
 
+[maxvertexcount (6)]
+void PlanetGrassGeoProgramm (triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<Interpolators> triStream)
+{
+	float3 pos = IN[0].vertex;
+	geometryOutput o;
+
+	float grassLevel = distance (float3(0, 0, 0), pos);
+
+	if (grassLevel < _MinGrassLevel || grassLevel > _MaxGrassLevel)
+		return;
+
+	float height = (rand (pos.zyx) * _BladeHeightRandom) + _BladeHeight;
+	float width = ((rand (pos.xzy) * _BladeWidthRandom) + _BladeWidth) * 0.5f;
+
+
+	//Local to tangent space matrix
+	float3 vNormal = IN[0].normal;
+	float4 vTangent = IN[0].tangent;
+	float3 vBinormal = cross (vNormal, vTangent) * vTangent.w;
+
+	float3x3 tangentToLocal = float3x3(
+		vTangent.x, vNormal.x, vBinormal.x,
+		vTangent.y, vNormal.y, vBinormal.y,
+		vTangent.z, vNormal.z, vBinormal.z
+		);
+
+	float3x3 windRotationMatrix = GetWindRotation (pos);
+
+	//Random rotation around y-axis
+	float3x3 facingRotationMatrix = AngleAxis3x3 (rand (pos) * UNITY_TWO_PI, float3(0, 1, 0));
+
+	//Random rotation around x-axis
+	float3x3 bendRotationMatrix = AngleAxis3x3 (rand (pos.zzx) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
+
+	//Calculate tranformation matrix
+	float3x3 transformationMatrix = mul (mul (mul (tangentToLocal, windRotationMatrix), facingRotationMatrix), bendRotationMatrix);
+	float3x3 transformationMatrixBase = mul (mul (tangentToLocal, facingRotationMatrix), bendRotationMatrix);
+
+	//Front Face
+	triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(width, 0, 0)), float2(0, 0), vNormal));
+	triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(-width, 0, 0)), float2(0, 0), vNormal));
+	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1), vNormal));
+
+	//Back Face
+	triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(-width, 0, 0)), float2(0, 0), vNormal));
+	triStream.Append (VertexOutput (pos + mul (transformationMatrixBase, float3(width, 0, 0)), float2(0, 0), vNormal));
+	triStream.Append (VertexOutput (pos + mul (transformationMatrix, float3(0, height, 0)), float2(1, 1), vNormal));
+}
+
 float4 GrassFragmentProgramm (Interpolators i, fixed facing : VFACE) : SV_Target
 {
 	i.normal = normalize (i.normal);

@@ -13,7 +13,7 @@ interface ITerrainGeneratorAddon
 interface ITerrainGeneratorShaderAddon
 {
 	public void LoadDefaultValues (Material m);
-	public void SetMaterialProperties (MaterialPropertyBlock propertyBlock);
+	//public void SetMaterialProperties (MaterialPropertyBlock propertyBlock);
 }
 
 [System.Serializable]
@@ -207,7 +207,7 @@ public class TerrainMeshGenerator : MeshGenerator
 		mp.SetFloat ("_OffsetX", offsetX * chunkDimention);
 		mp.SetFloat ("_OffsetZ", offsetZ * chunkDimention);
 
-		foreach(var i in GetComponents<ITerrainGeneratorShaderAddon>())
+		foreach(var i in GetComponents<IShaderSetting>())
 			i.SetMaterialProperties (mp);
 
 		meshRenderer.SetPropertyBlock (mp);

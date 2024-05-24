@@ -9,11 +9,14 @@ public class Planet : MonoBehaviour
 
 	public PlanetShapeSetting m_shapeSetting;
 	public PlanetColorSetting m_colorSetting;
+	public PlanetGrassSetting m_grassSetting;
 
 	[HideInInspector]
 	public bool shapeSettingsFoldout;
 	[HideInInspector]
 	public bool colorSettingsFoldout;
+	[HideInInspector]
+	public bool grassSettingsFoldout;
 
 	PlanetShapeGenerator m_shapeGenerator;
 
@@ -29,17 +32,17 @@ public class Planet : MonoBehaviour
 		GenerateMesh();
 	}
 	
-	public void OnColorSettingsUpdated()
+	public void OnShaderSettingsUpdated()
 	{
 		Init();
-		GenerateColors();
+		SetShaderProperties();
 	}
 
 	public void GeneratePlanet()
 	{
 		Init();
 		GenerateMesh();
-		GenerateColors();
+		SetShaderProperties();
 	}
 
 	//Private Methods
@@ -81,11 +84,12 @@ public class Planet : MonoBehaviour
 			face.ConstructMesh();
 	}
 
-	void GenerateColors()
+	void SetShaderProperties()
 	{
 		MaterialPropertyBlock mp = new MaterialPropertyBlock();
+		m_colorSetting.SetMaterialProperties (mp);
+		m_grassSetting.SetMaterialProperties (mp);
 
-		mp.SetColor("_PlanetColor", m_colorSetting.color);
 		mp.SetFloat ("_WaterLevel", m_shapeSetting.m_radius * 1.05f);
 
 		foreach (MeshFilter m in m_meshFilters)

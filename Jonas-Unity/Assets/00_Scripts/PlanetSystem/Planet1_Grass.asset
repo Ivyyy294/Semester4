@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab1d18629bffbb440adbcac32c83c4fc, type: 3}
+  m_Name: Planet1_Grass
+  m_EditorClassIdentifier: 
+  m_minGrassLevel: 106
+  m_maxGrassLevel: 813
+  m_topColor: {r: 0.42147446, g: 1, b: 0, a: 0}
+  m_bottomColor: {r: 0.10848112, g: 0.3018868, b: 0.024207907, a: 0}
+  m_bladeWidth: 0.914
+  m_bladeHeight: 1
+  m_bendRotationRandom: 0.294
+  m_bladeWidthRandom: 0.05
+  m_bladeHeightRandom: 1
+  m_tessellationUniform: 10

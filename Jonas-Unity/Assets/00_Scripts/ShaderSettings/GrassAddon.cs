@@ -17,7 +17,7 @@ public struct GrassProperties
 	[Range(1, 64)] public float TessellationUniform;
 }
 
-public class GrassAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
+public class GrassAddon : MonoBehaviour, ITerrainGeneratorShaderAddon, IShaderSetting
 {
 	public GrassProperties properties;
 

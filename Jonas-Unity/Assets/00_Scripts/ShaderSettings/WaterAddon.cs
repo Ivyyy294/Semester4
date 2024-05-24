@@ -22,7 +22,7 @@ public struct WaterProperties
 	public float wavesDirection;
 }
 
-public class WaterAddon : MonoBehaviour, ITerrainGeneratorShaderAddon
+public class WaterAddon : MonoBehaviour, ITerrainGeneratorShaderAddon, IShaderSetting
 {
 	public WaterProperties properties;
 
