@@ -5,15 +5,15 @@ using UnityEngine;
 public class PlanetShapeGenerator
 {
 	PlanetShapeSetting m_shapeSetting;
-	NoiseFilter[] m_noiseFilters;
+	INoiseFilter[] m_noiseFilters;
 
 	public PlanetShapeGenerator (PlanetShapeSetting shapeSetting)
 	{
 		m_shapeSetting = shapeSetting;
-		m_noiseFilters = new NoiseFilter[m_shapeSetting.m_noiseLayers.Length];
+		m_noiseFilters = new INoiseFilter[m_shapeSetting.m_noiseLayers.Length];
 		
 		for (int i = 0; i < m_shapeSetting.m_noiseLayers.Length; ++i)
-			m_noiseFilters[i] = new NoiseFilter(m_shapeSetting.m_noiseLayers[i].m_noiseSettings);
+			m_noiseFilters[i] = NoiseFilterFactory.CreateNoiseFilter (m_shapeSetting.m_noiseLayers[i].m_noiseSettings);
 	}
 
 	public Vector3 CalculatePointOnPlanet (Vector3 pointOnUnitSphere)

@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 061def4500e2970419d22f86f52ee9fc, type: 3}
   m_Name: Planet1_Shape
   m_EditorClassIdentifier: 
-  m_radius: 21.9
+  m_radius: 50
   m_noiseLayers:
   - m_enabled: 1
     useFirstLayerAsMask: 1
     m_noiseSettings:
+      m_filterTyp: 0
       m_numLayer: 3
       m_strength: 0.13
       m_baseRoughness: 1
@@ -24,13 +25,25 @@ MonoBehaviour:
       persistance: 0.5
       m_centre: {x: 0, y: 0, z: 0}
       m_minVal: 0.92
-  - m_enabled: 1
+  - m_enabled: 0
     useFirstLayerAsMask: 1
     m_noiseSettings:
+      m_filterTyp: 0
       m_numLayer: 3
       m_strength: 0.9
       m_baseRoughness: 3.15
       m_roughness: 2
       persistance: 0.5
+      m_centre: {x: 0, y: 0, z: 0}
+      m_minVal: 0
+  - m_enabled: 1
+    useFirstLayerAsMask: 0
+    m_noiseSettings:
+      m_filterTyp: 1
+      m_numLayer: 4
+      m_strength: 0.05
+      m_baseRoughness: 1.2
+      m_roughness: 2.37
+      persistance: 0.65
       m_centre: {x: 0, y: 0, z: 0}
       m_minVal: 0
