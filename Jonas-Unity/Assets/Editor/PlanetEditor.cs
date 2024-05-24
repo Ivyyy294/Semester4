@@ -50,5 +50,6 @@ public class PlanetEditor : Editor
 	private void OnEnable()
 	{
 		planet = (Planet)target;
+		planet.GeneratePlanet();
 	}
 }

@@ -43,6 +43,11 @@ public class Planet : MonoBehaviour
 	}
 
 	//Private Methods
+	private void Start()
+	{
+		GeneratePlanet();
+	}
+
 	private void Init()
 	{
 		m_shapeGenerator = new PlanetShapeGenerator (m_shapeSetting);
@@ -61,7 +66,7 @@ public class Planet : MonoBehaviour
 				GameObject meshObj = new GameObject ("mesh");
 				meshObj.transform.parent = transform;
 
-				meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find ("Standard"));
+				meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find ("PlanetShader"));
 				m_meshFilters[i] = meshObj.AddComponent<MeshFilter>();
 				m_meshFilters[i].sharedMesh = new Mesh();
 			}
@@ -78,7 +83,12 @@ public class Planet : MonoBehaviour
 
 	void GenerateColors()
 	{
+		MaterialPropertyBlock mp = new MaterialPropertyBlock();
+
+		mp.SetColor("_PlanetColor", m_colorSetting.color);
+		mp.SetFloat ("_WaterLevel", m_shapeSetting.m_radius * 1.05f);
+
 		foreach (MeshFilter m in m_meshFilters)
-			m.GetComponent<MeshRenderer>().sharedMaterial.color = m_colorSetting.color;
+			m.GetComponent<MeshRenderer>().SetPropertyBlock(mp);
 	}
 }
