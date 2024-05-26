@@ -6,8 +6,11 @@ public class Room : MonoBehaviour
 {
 	static List <Room> roomList;
 
+	Vector3[] m_wallDirections;
+	GameObject[] m_wallObjs;
+
 	// Start is called before the first frame update
-	private void Awake()
+	private void OnEnable()
 	{
 		if (roomList == null)
 			roomList = new List<Room>();
@@ -15,56 +18,61 @@ public class Room : MonoBehaviour
 		roomList.Add (this);
 	}
 
+	private void OnDisable()
+	{
+		if (roomList.Contains (this))
+			roomList.Remove (this);
+	}
+
 	void Start()
     {
-		GenerateMesh();
+		Init();
 	}
 
     // Update is called once per frame
     void Update()
     {
-        
-    }
-
-	void GenerateMesh()
-	{
-		Stack<Vector3> directions = GetWallDirections();
-
-		while (directions.Count > 0)
-			AddFaceMesh (directions.Pop());
+		UpdateWallVisibility();
 	}
 
-	void AddFaceMesh (Vector3 direction)
+	void Init()
 	{
-		GameObject meshObj = new GameObject("mesh");
-		meshObj.transform.parent = transform;
-		meshObj.transform.localPosition = Vector3.zero;
+		if (m_wallDirections == null)
+			m_wallDirections = new Vector3[] { Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back};
+
+		if (m_wallObjs == null)
+		{
+			m_wallObjs = new GameObject[m_wallDirections.Length];
+
+			for (int i = 0; i < m_wallDirections.Length; ++i)
+				m_wallObjs[i] = AddWall (m_wallDirections[i]);
+		}
+	}
+
+	GameObject AddWall (Vector3 direction)
+	{
+		GameObject wallObj = new GameObject("mesh");
+		wallObj.transform.parent = transform;
+		wallObj.transform.localPosition = Vector3.zero;
 
 		//Construct Mesh
 		Mesh mesh = new Mesh();
-		RoomFaceGenerator roomFaceGenerator = new RoomFaceGenerator(mesh, 2, direction);
+		RoomwallGenerator roomFaceGenerator = new RoomwallGenerator(mesh, 2, direction);
 		roomFaceGenerator.ConstructMesh();
 
 		//Add components
-		meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
-		meshObj.AddComponent<MeshFilter>().sharedMesh = mesh;
-		meshObj.AddComponent<MeshCollider>();
+		wallObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+		wallObj.AddComponent<MeshFilter>().sharedMesh = mesh;
+		wallObj.AddComponent<MeshCollider>();
+
+		return wallObj;
 	}
 
-	Stack <Vector3> GetWallDirections()
+	void UpdateWallVisibility()
 	{
-		Stack<Vector3> directions = new Stack<Vector3>();
-		directions.Push (Vector3.down);
-
-		Vector3[] wallDirections = {Vector3.left, Vector3.right, Vector3.forward, Vector3.back};
-
-		for (int i = 0; i < wallDirections.Length; ++i)
-		{
-			if (!HasNeigbour (wallDirections[i]))
-				directions.Push (wallDirections[i]);
-		}
-
-		return directions;
+		//Skip floor
+		for (int i = 1; i < m_wallDirections.Length; ++i)
+			m_wallObjs[i].SetActive (!HasNeigbour(m_wallDirections[i]));
 	}
 
 	Vector2 GetGridPos()

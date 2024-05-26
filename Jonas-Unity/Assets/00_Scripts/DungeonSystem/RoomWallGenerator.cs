@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RoomFaceGenerator
+public class RoomwallGenerator
 {
 	Mesh m_mesh;
 	int m_resolution;
@@ -10,7 +10,7 @@ public class RoomFaceGenerator
 	Vector3 m_axisA;
 	Vector3 m_axisB;
 
-	public RoomFaceGenerator (Mesh mesh, int resolution, Vector3 localUp)
+	public RoomwallGenerator (Mesh mesh, int resolution, Vector3 localUp)
 	{
 		m_mesh = mesh;
 		m_resolution = resolution;
