@@ -18,7 +18,7 @@ MonoBehaviour:
   m_bottomColor: {r: 0.10848112, g: 0.3018868, b: 0.024207907, a: 0}
   m_bladeWidth: 0.404
   m_bladeHeight: 0.01
-  m_bendRotationRandom: 0.294
+  m_bendRotationRandom: 0.195
   m_bladeWidthRandom: 0.05
   m_bladeHeightRandom: 1
-  m_tessellationUniform: 3
+  m_tessellationUniform: 2.7

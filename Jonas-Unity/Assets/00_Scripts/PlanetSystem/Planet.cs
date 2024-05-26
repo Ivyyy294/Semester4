@@ -11,6 +11,7 @@ public class Planet : MonoBehaviour
 	public PlanetColorSetting m_colorSetting;
 	public PlanetGrassSetting m_grassSetting;
 	public PlanetWaterSetting m_waterSetting;
+	public PlanetRockSetting m_rockSetting;
 
 	[HideInInspector]
 	public bool shapeSettingsFoldout;
@@ -20,6 +21,8 @@ public class Planet : MonoBehaviour
 	public bool grassSettingsFoldout;
 	[HideInInspector]
 	public bool waterSettingsFoldout;
+	[HideInInspector]
+	public bool rockSettingsFoldout;
 
 	PlanetShapeGenerator m_shapeGenerator;
 
@@ -41,11 +44,17 @@ public class Planet : MonoBehaviour
 		SetShaderProperties();
 	}
 
+	public void OnTerrainObjectSettingsUpdated()
+	{
+		GenerateTerrainObjects();
+	}
+
 	public void GeneratePlanet()
 	{
 		Init();
 		GenerateMesh();
 		SetShaderProperties();
+		GenerateTerrainObjects();
 	}
 
 	//Private Methods
@@ -96,5 +105,20 @@ public class Planet : MonoBehaviour
 
 		foreach (MeshFilter m in m_meshFilters)
 			m.GetComponent<MeshRenderer>().SetPropertyBlock(mp);
+	}
+
+	void GenerateTerrainObjects()
+	{
+		StopAllCoroutines();
+		StartCoroutine (GenerateTerrainObjectsIntern());
+	}
+
+	IEnumerator GenerateTerrainObjectsIntern()
+	{
+		for (int i = 0; i < m_planetFaces.Length; ++i)
+		{
+			m_planetFaces[i].GenerateTerrainObjects (m_rockSetting, m_meshFilters[i].transform);
+			yield return new WaitForEndOfFrame();
+		}
 	}
 }

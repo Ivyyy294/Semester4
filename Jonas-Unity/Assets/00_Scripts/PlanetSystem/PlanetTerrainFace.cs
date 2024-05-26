@@ -61,4 +61,16 @@ public class PlanetTerrainFace
 		m_mesh.triangles = triangles;
 		m_mesh.RecalculateNormals();
 	}
+
+	public void GenerateTerrainObjects(PlanetRockSetting rockSettings, Transform transform)
+	{
+		for (int i = 0; i < m_mesh.vertices.Length; ++i)
+		{
+			Vector3 pos = m_mesh.vertices[i];
+			Vector3 normal = m_mesh.normals[i];
+
+			if (rockSettings.Valid(pos, normal))
+				rockSettings.Spawn(pos, normal, transform);
+		}
+	}
 }
